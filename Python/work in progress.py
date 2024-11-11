@@ -1,3 +1,6 @@
+"""Made by the only one"""
+
+
 import cv2
 import threading
 from gpiozero import Servo
@@ -29,6 +32,10 @@ videocapture.set(cv2.CAP_PROP_FRAME_HEIGHT, frameHeight)
 #Load HOG Descriptor
 hog = cv2.HOGDescriptor()
 hog.setSVMDetector(cv2.HOGDescriptor_getDefaultPeopleDetector())
+
+#Initialize tracker
+tracker = None
+primaryTargetLocked = False
 
 #Flag to control threads
 stopThreads = False
@@ -62,6 +69,33 @@ def processingThread():
         boxes, _ = hog.detectMultiScale(grayscale, winStride=(8, 8), scale=1.05)
 
         if len(boxes) > 0:
+            #Select one target, this chooses the first person it detects
+            primaryBox = boxes[0]
+
+            #Initialize the tracker
+            tracker = cv2.TrackerCRST_create()
+            tracker.init(frame, tuple(primaryBox))
+
+            #Lock on the target
+            primaryTargetLocked = True
+
+            #Draw rectangle around the person
+            x, y, w, h = primaryBox
+            cv2.rectangle(frame, (x,y), (x + w, y + h), (0, 255, 0), 2)
+
+        else:
+            #Make the tracker follow the primary target
+            success, box = tracker.update(frame)
+
+            if success:
+                x, y, w, h = map(int, box)
+                #Draw a rectangle on the person when in tracking mode
+                cv2.rectangle(frame, (x,y), (x + w, y + h), (255, 0, 0), 2)
+            else:
+                #When target moves out of frame, reset the tracker
+                primaryTargetLocked = False
+                tracker = None
+
             #Get coordinates of the detected person
             x, y, w, h = boxes[0]
             personCenterX = x + w // 2
