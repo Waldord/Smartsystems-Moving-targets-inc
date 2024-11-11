@@ -12,6 +12,10 @@ from PIL import ImageTk, Image
 import cv2
 
 start_time = time.time()
+pos_x_set = False
+pos_y_set = False
+
+
 
 def Amove(z):
     print (z ,"| A motor steps")
@@ -59,10 +63,18 @@ def regular_task():
     position_x_diff = new_position_x - position_x
     position_y_diff = new_position_y - position_y
     
-    for i in range(5):
-            
+    for i in range(10):
+        """
         new_position_x = np.random.randint(0,40)
         new_position_y = np.random.randint(0,40)
+        """
+        
+        while pos_x_set != True:
+            new_position_x = send_text_field()
+
+        while pos_y_set != True:
+            new_position_y = send_text_field()
+        
         position_x_diff = new_position_x - position_x
         position_y_diff = new_position_y - position_y
         printall(position_x , position_y, new_position_x, new_position_y, position_x_diff, position_y_diff)
@@ -78,9 +90,9 @@ def regular_task():
                 
         position_x = new_position_x
         position_y = new_position_y
+        current_position.config(text="current position:"+str(position_x)+", "+str(position_y))
         time.sleep(2)
-        while (pause == True):
-            time.sleep(0.3)
+
 
 def daemon_task():
     while True:
@@ -111,7 +123,16 @@ def clock():
 
 clock.counter = 60
 
+def send_text_field():
+    value_to_send = text_field.get()
 
+    try:
+        return int(value_to_send)
+    except ValueError:
+        print("Invalid input; please enter an integer.")
+
+
+    
 
 cap = cv2.VideoCapture(0)
 
@@ -153,13 +174,16 @@ frame = LabelFrame(root, text="TIMER", padx=10, pady=10)
 
 title_label = Label(root, text="Moving Targets inc.", font=("Comic sans", 100), fg="white", bg="grey")
 score_label = Label(root, text="", font=("Comic sans", 60))
+current_position = Label(root, text="", font=("Comic sans", 60))
 clock_label = Label(frame, text="", font=("Comic sans", 80), fg="white", bg="black")
 start_Button = Button(root, text="START", font=("Comic sans", 48), padx=10, pady=10, command=start)
+
+text_field = Entry(root, font=("Arial", 14))
+text_field_button = Button(root, text="Set Position", font=("Arial", 14), command=send_text_field)
 
 app = LabelFrame(root, text="TURRET-POV",padx=10,pady=10)
 
 lmain = Label(app)
-
 
 
 empty = Label(root, text="", font=("Comic sans", 60))
@@ -169,9 +193,20 @@ score_label.grid(row=2, column=2, pady=5)
 empty.grid(row=2, column=0, pady=5)
 frame.grid(row=2, column=1, pady=5)
 start_Button.grid(row=3, column=1, pady=5)
+text_field.grid(row=4, column=0)
+text_field_button.grid(row=5, column=0)
+current_position.grid(row=6, column=0)
+
+"""root.mainloop()"""
+
+if __name__ == "__main__":
+    app = Tk(sys.argv)
+    window = MoveWidget()
+
+    window.show()
+    sys.exit(app.exec())
 
 
-root.mainloop()
 
 
 """

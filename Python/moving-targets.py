@@ -4,7 +4,7 @@ Created on Mon Oct 14 12:30:42 2024
 
 It works!
 
-@author: Sleggosaurus rex, da ørkenen var øde pushet sleggosaur til hub og gjorde liv i systemet
+@author: The sweedish Sleggosaurus rex, da ørkenen var øde pushet sleggosaur til hub og gjorde liv i systemet
 """
 import numpy as np
 import array as arr
