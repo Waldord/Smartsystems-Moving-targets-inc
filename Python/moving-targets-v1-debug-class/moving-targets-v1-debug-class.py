@@ -36,9 +36,16 @@ class App:
     def __init__(self, root):
         self.root = root
         self.root.geometry("1500x1000")
+        self.root.configure(bg="Gray30")
         self.root.title("Moving Targets Inc.")
         self.start_time = time.time()
+
         
+        # Gamemode flags
+        self.normal_gameflag = False
+        self.random_gameflag = False
+        self.text_box_gameflag = False
+
         # Position variables
         self.position_x = 0
         self.position_y = 0
@@ -64,38 +71,57 @@ class App:
         self.clock_counter = 60
 
     def create_widgets(self):
-        self.title_label = Label(self.root, text="Moving Targets inc.", font=("Comic sans", 100), fg="white", bg="grey")
-        self.score_label = Label(self.root, text="", font=("Comic sans", 60))
-        self.current_position = Label(self.root, text="", font=("Comic sans", 60))
-        self.clock_label = Label(self.root, font=("Comic sans", 80), fg="white", bg="black")
-        self.start_button = Button(self.root, text="START", font=("Comic sans", 48), command=self.start)
-        
-        # Single text field and button for both X and Y
-        self.text_field = Entry(self.root, font=("Arial", 14))
-        self.text_field_button = Button(self.root, text="Set Position", font=("Arial", 14), command=self.send_text_field)
+        self.title_label = Label(self.root, text="Moving Targets inc.", font=("Comic sans", 72), fg="black", bg="red4")
+        self.score_label = Label(self.root, fg="black", bg="red4" ,text="", font=("Comic sans", 48))
+        self.current_position = Label(self.root, fg="black", bg="red4" , text="", font=("Comic sans", 48))
+        self.clock_label = Label(self.root, fg="black", bg="red4" ,font=("Comic sans", 48))
 
-        self.title_label.grid(row=0, column=0, pady=5, columnspan=5)
+        # Buttons that choose game mode
+        self.normal_start_button = Button(self.root, fg="black", bg="red4" ,activebackground="green",text="Normal", font=("Comic sans", 32), command=lambda:[self.set_normal_flag(), self.normal_start()])
+        self.random_start_button = Button(self.root, fg="black", bg="red4" ,activebackground="green",text="Random", font=("Comic sans", 32), command=lambda:[self.set_random_flag(), self.random_start()])
+        self.text_box_start_button = Button(self.root, fg="black", bg="red4" ,activebackground="green",text="Text Box", font=("Comic sans", 32), command=lambda:[self.set_textbox_flag(), self.text_box_start()])
+
+
+        # Single text field and button for both X and Y
+        self.text_field = Entry(self.root, fg="black", bg="red4", font=("Arial", 14))
+        self.text_field_button = Button(self.root, fg="black", bg="red4" ,text="Set Position", font=("Arial", 14), command=self.send_text_field)
+
+        self.title_label.grid(row=0, column=0, pady=5, columnspan=4)
         # Column 0
-        self.current_position.grid(row=1, column=0)
-        self.text_field.grid(row=2, column=0)
-        self.text_field_button.grid(row=3, column=0)
+        self.current_position.grid(row=1, column=0, sticky=NW)
+        self.text_field.grid(row=2, column=0, sticky=NW)
+        self.text_field_button.grid(row=3, column=0, sticky=NW)
 
         # Column 1
+        self.normal_start_button.grid(row=3, column=1, pady=5, sticky=NSEW)
+        self.random_start_button.grid(row=4, column=1, pady=5, sticky=NSEW)
+        self.text_box_start_button.grid(row=5, column=1, pady=5, sticky=NSEW)
         
-        self.start_button.grid(row=3, column=1, pady=5)
-        self.app_frame = LabelFrame(self.root, text="TURRET-POV", padx=10, pady=10)
-        self.app_frame.grid(row=4, column=4, columnspan=3, pady=15)
-        self.lmain = Label(self.app_frame)
-        self.lmain.grid(row=4, column=4)
 
         # Column 2
-        self.score_label.grid(row=1, column=1, pady=5)
-        self.clock_label.grid(row=1, column=3)
+        self.score_label.grid(row=1, column=2, pady=5, sticky=NW)
+        self.clock_label.grid(row=1, column=3, sticky=N)
         # Column 3
         
+        # Column 4
+        self.app_frame = LabelFrame(self.root, fg="black", bg="red4", text="TURRET-POV", padx=10, pady=10)
+        self.app_frame.grid(row=0, column=5, rowspan=7,columnspan=7, pady=15, sticky=SE)
+        self.lmain = Label(self.app_frame, fg="black", bg="red4" ,)
+        self.lmain.grid(row=1, column=5, sticky=NSEW)    
+
+    def set_normal_flag(self):
+        print("normal game selected")
+        self.normal_gameflag = True
 
 
+    def set_random_flag(self):
+        print("random game selected")
+        self.random_gameflag = True
+        
 
+    def set_textbox_flag(self):
+        print("text_box game selected")
+        self.text_box_gameflag = True
 
     def send_text_field(self):
         value = self.text_field.get()
@@ -106,7 +132,7 @@ class App:
             self.previous_position_y = self.position_y
             self.new_position_x = x
             self.new_position_y = y
-            self.position_event.set()  # Signal the regular_task thread to continue
+            self.position_event.set()  # Signal the normal_game_mode thread to continue
             self.text_field.delete(0, END)  # Clear the text box after reading the input
         except ValueError:
             print("Invalid input; please enter two integers separated by a space.")
@@ -138,11 +164,14 @@ class App:
         self.lmain.configure(image=imgtk)
         self.lmain.after(10, self.video_stream)
 
-    def regular_task(self):
+    def normal_game_mode(self):
+        self.next_update_interval = 2
+
         while True:  # Keep running unless you have a stopping condition
             # Wait for the next X and Y positions
             #new_position_x, new_position_y = self.get_next_position()
 
+            self.next_update = time.time() + self.next_update_interval
             # Grabs data from new_position_x & y arrays
             self.new_position_x = self.next_position_array_x[self.counter]
             self.new_position_y = self.next_position_array_y[self.counter]
@@ -150,7 +179,7 @@ class App:
             dx = self.new_position_x - self.position_x
             dy = self.new_position_y - self.position_y
 
-            if dx != 0 or dy != 0:  # Only move if there's a change
+            if dx != 0 or dy != 0:  # Only move if dx or dy have changed
                 MotorControl.Amove(MotorControl.deltaA(dx, dy))
                 MotorControl.Bmove(MotorControl.deltaB(dx, dy))
                 self.position_x, self.position_y = self.new_position_x, self.new_position_y
@@ -161,21 +190,106 @@ class App:
                 self.counter = (self.counter+1)%len(self.next_position_array_x)
             else:
                 print("No position change, skipping motor movement.")
+            time.sleep(self.next_update_interval)
+                
 
-            time.sleep(2)
 
-    def start(self):
+    def random_game_mode(self):
+        self.next_update_interval = 2
+        while True:  
+            self.next_update = time.time()+self.next_update_interval
+            # Generate random numbers between 0, 40 for x and y positions
+            self.new_position_x = np.random.randint(0,40)
+            self.new_position_y = np.random.randint(0,40)                
+            dx = self.new_position_x - self.position_x
+            dy = self.new_position_y - self.position_y
+
+            if dx != 0 or dy != 0:  # Only move if dx or dy have changed
+                MotorControl.Amove(MotorControl.deltaA(dx, dy))
+                MotorControl.Bmove(MotorControl.deltaB(dx, dy))
+                self.position_x, self.position_y = self.new_position_x, self.new_position_y
+                self.current_position.config(
+                text=f"current position: {self.position_x}, {self.position_y}", 
+                     font=("Arial", 14)
+                )
+            else:
+                print("No position change, skipping motor movement.")
+            time.sleep(self.next_update_interval)
+
+
+
+    def text_box_game_mode(self):
+        self.next_update_interval = 2
+        while True:
+            # Her bør det legges inn WAIT signal
+            dx = self.new_position_x - self.position_x
+            dy = self.new_position_y - self.position_y
+            if dx != 0 or dy != 0:  # Only move if dx or dy have changed
+                MotorControl.Amove(MotorControl.deltaA(dx, dy))
+                MotorControl.Bmove(MotorControl.deltaB(dx, dy))
+                self.position_x, self.position_y = self.new_position_x, self.new_position_y
+                self.current_position.config(
+                    text=f"current position: {self.position_x}, {self.position_y}", 
+                    font=("Arial", 14)
+                )
+            else:
+                print("No position change, skipping motor movement.")
+            time.sleep(self.next_update_interval)
+
+
+
+    def grid_remover(self):
+        self.normal_start_button.grid_remove()
+        self.random_start_button.grid_remove()
+        self.text_box_start_button.grid_remove()
+
+        print("start buttons removed")
+        if self.normal_gameflag == True or self.random_gameflag == True:
+            self.text_field.grid_remove()
+            self.text_field_button.grid_remove()    
+            print("text field and button removed")
+
+
+        
+
+    def normal_start(self):
         self.update_clock()
         self.video_stream()
+        self.grid_remover()
+        #Removes start menu buttons
 
         # Start threads for regular task and sensor task
-        t1 = threading.Thread(target=self.regular_task, daemon=True)
+        t1 = threading.Thread(target=self.normal_game_mode, daemon=True)
         t2 = threading.Thread(target=self.update_score, daemon=True)
 
         t1.start()
         t2.start()
-        self.start_button.grid_remove()
+        
 
+    def random_start(self):
+        self.update_clock()
+        self.video_stream()
+        self.grid_remover()
+
+        # Start threads for regular task and sensor task
+        t1 = threading.Thread(target=self.random_game_mode, daemon=True)
+        t2 = threading.Thread(target=self.update_score, daemon=True)
+
+        t1.start()
+        t2.start()
+        
+
+    def text_box_start(self):
+        #self.update_clock()
+        self.video_stream()
+        self.grid_remover()
+
+        # Start threads for regular task and sensor task
+        t1 = threading.Thread(target=self.text_box_game_mode, daemon=True)
+        t2 = threading.Thread(target=self.update_score, daemon=True)
+
+        t1.start()
+        t2.start()
 
 if __name__ == "__main__":
     root = Tk()
