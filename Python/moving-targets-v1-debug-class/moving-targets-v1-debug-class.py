@@ -34,6 +34,7 @@ class Sensor:
 
 class App:
     def __init__(self, root):
+        # Initialization of root window
         self.root = root
         self.root.geometry("1500x1000")
         self.root.configure(bg="Gray30")
@@ -67,8 +68,9 @@ class App:
         
         self.create_widgets()
         self.cap = cv2.VideoCapture(0)
-        self.counter = 0
         self.clock_counter = 60
+
+        self.counter = 0
 
     def create_widgets(self):
         self.title_label = Label(self.root, text="Moving Targets inc.", font=("Comic sans", 72), fg="black", bg="red4")
@@ -139,9 +141,12 @@ class App:
 
     def get_next_position(self):
         # Wait for user to click the button and set the next position
+        print("before wait")
         self.position_event.wait()
+        print("after wait, before clear")
         self.position_event.clear()  # Clear the event for the next wait
-        return self.position_x, self.position_y
+        print("after clear")
+        return self.new_position_x, self.new_position_y
 
     def update_clock(self):
         if self.clock_counter > 0:
@@ -192,8 +197,6 @@ class App:
                 print("No position change, skipping motor movement.")
             time.sleep(self.next_update_interval)
                 
-
-
     def random_game_mode(self):
         self.next_update_interval = 2
         while True:  
@@ -219,8 +222,11 @@ class App:
 
 
     def text_box_game_mode(self):
-        self.next_update_interval = 2
+        #self.next_update_interval = 2
         while True:
+            # Keep running unless you have a stopping condition
+            # Wait for the next X and Y positions
+            self.new_position_x, self.new_position_y = self.get_next_position()
             # Her bør det legges inn WAIT signal
             dx = self.new_position_x - self.position_x
             dy = self.new_position_y - self.position_y
@@ -234,7 +240,7 @@ class App:
                 )
             else:
                 print("No position change, skipping motor movement.")
-            time.sleep(self.next_update_interval)
+            #time.sleep(self.next_update_interval)
 
 
 
