@@ -114,7 +114,7 @@ def processingThread():
         cv2.imshow("Frame", frame)
         if cv2.waitKey(1) & 0xFF == ord('X'):
             stopThreads = True
-            break
+        
 
 #Start the threads
 cameraT = threading.Thread(target = cameraThread, daemon = True)
