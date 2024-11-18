@@ -63,7 +63,7 @@ class App:
 
         # Counter for position array
         self.next_position_array_x = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-        self.next_position_array_y = [2, 4, 6 ,8 ,10 ,12, 14, 16, 18, 20, 12, 14, 16 ,18 ,110 ,112, 114, 116, 118, 120]
+        self.next_position_array_y = [2, 4, 6 ,8 ,10 ,12, 14, 16, 18, 20]
 
         # Thread event for synchronization
         self.position_event = threading.Event()
@@ -77,7 +77,6 @@ class App:
 
         # Flag for exiting some game modes
         self.running = True
-
         self.entered_username_flag = False
         self.username_saved_flag = False
 
@@ -85,11 +84,12 @@ class App:
         self.t2 = threading.Thread
 
 
-
     def create_widgets(self):
 
+        self.reset_flags()
         # Resets clock_counter and points
         self.counter = 0
+
         # Title
         self.title_label = Label(
             self.root, 
@@ -178,8 +178,6 @@ class App:
             command=lambda:[self.set_textbox_flag(), self.text_box_start()])
         self.text_box_start_button.grid(row=5, column=1, pady=5, sticky=NSEW)
         
-
-
         #Stop button for text mode        
         self.stop_button = Button(
             self.root, 
@@ -227,6 +225,12 @@ class App:
             bg="red4" ,)
         self.lmain.grid(row=1, column=5, sticky=NSEW)    
 
+
+    def reset_flags(self):
+        self.normal_gameflag = False
+        self.random_gameflag = False
+        self.text_box_gameflag = False
+
     def set_normal_flag(self):
         print("normal game selected")
         self.normal_gameflag = True
@@ -257,16 +261,12 @@ class App:
 
     def get_next_position(self):
         # Wait for user to click the button and set the next position
-        print("before wait")
         self.position_event.wait()
-        print("after wait, before clear")
-        self.position_event.clear()  # Clear the event for the next wait
-        print("after clear")
+        self.position_event.clear()
         return self.new_position_x, self.new_position_y
 
 
     def show_high_score(self):
-        # Create high score window
         high_score_window = Toplevel(self.root)
         high_score_window.title("Highscore")
         high_score_window.geometry("400x600")
@@ -297,7 +297,7 @@ class App:
 
     def update_clock(self):
         if self.clock_counter > 0:
-            self.clock_counter -= 10
+            self.clock_counter -= 1
         minute, second = divmod(self.clock_counter, 60)
         self.clock_label.config(text=f"{minute}:{second:02}")
         self.clock_label.after(1000, self.update_clock)
@@ -321,7 +321,7 @@ class App:
         imgtk = ImageTk.PhotoImage(image=img)
         self.lmain.imgtk = imgtk
         self.lmain.configure(image=imgtk)
-        self.lmain.after(10, self.video_stream)
+        self.lmain.after(30, self.video_stream)
     
     #Terminates tk window
     def stop(self):
@@ -334,10 +334,8 @@ class App:
     def normal_game_mode(self):
         self.next_update_interval = 2
 
-        while self.clock_counter > 0:  # Keep running unless you have a stopping condition
+        while self.clock_counter > 0:
             # Wait for the next X and Y positions
-            #new_position_x, new_position_y = self.get_next_position()
-
             self.next_update = time.time() + self.next_update_interval
             # Grabs data from new_position_x & y arrays
             self.new_position_x = self.next_position_array_x[self.position_counter]
@@ -385,7 +383,7 @@ class App:
 
     def text_box_game_mode(self):
         #self.next_update_interval = 2
-        while True:
+        while self.running == True:
             # Keep running unless you have a stopping condition
             # Wait for the next X and Y positions
             self.new_position_x, self.new_position_y = self.get_next_position()
@@ -412,17 +410,9 @@ class App:
         self.text_box_start_button.grid_remove()
         self.high_score_button.grid_remove()
 
-        print("start buttons removed")
         if self.normal_gameflag == True or self.random_gameflag == True:
             self.text_field.grid_remove()
             self.text_field_button.grid_remove()    
-            print("text field and button removed")
-
-    def game_finished_old(self):
-        #tk kode for finished screen med poeng
-        self.clock_label.grid_remove()
-        self.current_position.grid_remove()
-        self.score_label.config(font=("arial" , 72))
 
     def game_finished(self):
         self.running = False
@@ -437,6 +427,7 @@ class App:
             self.game_finished_show_main_menu()
     
     def game_finished_show_main_menu(self):
+        self.running = False
         self.clock_counter = 0
         self.entered_username_flag = False
         self.username_saved_flag = False
