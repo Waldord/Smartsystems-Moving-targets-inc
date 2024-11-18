@@ -87,6 +87,10 @@ class App:
 
 
     def create_widgets(self):
+
+        # Resets clock_counter and points
+        self.clock_counter = 60
+        self.counter = 0
         # Title
         self.title_label = Label(
             self.root, 
@@ -135,7 +139,6 @@ class App:
             command=self.show_high_score)
         self.high_score_button.grid(row=3, column=2, pady=5, sticky=NSEW)
 
-<<<<<<< HEAD
         # Normal game mode
         self.normal_start_button = Button(
             self.root, 
@@ -145,16 +148,6 @@ class App:
             text="Normal", 
             font=("Comic sans", 32), 
             command=lambda:[self.set_normal_flag(), self.normal_start()])
-=======
-        self.title_label.grid(row=0, column=0, pady=5, columnspan=4)
-        # Column 0
-        self.current_position.grid(row=1, column=0, sticky=NW)
-        self.text_field.grid(row=2, column=0, sticky=NW)
-        self.text_field_button.grid(row=3, column=0, sticky=NW)
-        
-
-        # Column 1
->>>>>>> 0fb77c79c9f979a2e39eb6491cb9e94c8dea3b2d
         self.normal_start_button.grid(row=3, column=1, pady=5, sticky=NSEW)
         
         # Random game mode
@@ -227,15 +220,6 @@ class App:
             fg="black", 
             bg="red4" ,)
         self.lmain.grid(row=1, column=5, sticky=NSEW)    
-
-    def show_main_menu(self):
-        # Clear all widgets currently displayed
-        for widget in self.root.winfo_children():
-            widget.destroy()
-
-        # Recreate the main menu
-        self.create_widgets()
-        print("Returned to main menu")
 
     def set_normal_flag(self):
         print("normal game selected")
@@ -312,7 +296,7 @@ class App:
         self.clock_label.config(text=f"{minute}:{second:02}")
         self.clock_label.after(1000, self.update_clock)
         
-        if self.clock_counter == 0:
+        if self.clock_counter <= 0:
             self.game_finished()
 
     def update_score(self):
@@ -420,6 +404,7 @@ class App:
         self.normal_start_button.grid_remove()
         self.random_start_button.grid_remove()
         self.text_box_start_button.grid_remove()
+        self.high_score_button.grid_remove()
 
         print("start buttons removed")
         if self.normal_gameflag == True or self.random_gameflag == True:
@@ -447,6 +432,7 @@ class App:
     
     def game_finished_show_main_menu(self):
         print("hello")
+        self.entered_username_flag = False
         self.username_saved_flag = False
         if self.t1.is_alive():
             self.t1.join(timeout=1)
@@ -456,6 +442,7 @@ class App:
         for widget in self.root.winfo_children():
             widget.destroy()
         self.create_widgets()
+        
           
 
     def normal_start(self):
