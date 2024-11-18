@@ -156,11 +156,11 @@ class App:
         minute, second = divmod(self.clock_counter, 60)
         self.clock_label.config(text=f"{minute}:{second:02}")
         self.clock_label.after(1000, self.update_clock)
+        
+        if self.clock_counter == 0:
+            self.game_finished()
 
     def update_score(self):
-        #addet game finished her
-        if self.clock_counter <= 0:
-            self.game_finished()
         while self.clock_counter > 0:
             if Sensor.read():
                 self.counter += 1
@@ -264,19 +264,11 @@ class App:
             self.text_field_button.grid_remove()    
             print("text field and button removed")
 
-    def game_finished_tkinter(self):
-        #tk kode for finished screen med poeng
-        return
-
-    #funksjon som må være damoen threada
     def game_finished(self):
-        self.switch = True
-        while self.switch:
-            if self.clock_counter <= 0:
-                self.game_finished_tkinter()
-                self.switch = False
-
-        
+        #tk kode for finished screen med poeng
+        self.clock_label.grid_remove()
+        self.current_position.grid_remove()
+        self.score_label.config(font=("arial" , 72))
 
     def normal_start(self):
         self.update_clock()
