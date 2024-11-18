@@ -220,9 +220,9 @@ class App:
         self.entered_username_flag = False
         self.username_saved_flag = False
 
-        self.t1 = threading.Thread
-        self.t2 = threading.Thread
-        self.t3 = threading.Thread
+        self.t1 = None
+        self.t2 = None
+        self.t3 = None
 
 
     def create_widgets(self):
@@ -294,7 +294,7 @@ class App:
             activebackground="green",
             text="Normal", 
             font=("Comic sans", 32), 
-            command=lambda:[self.set_normal_flag(), self.normal_start()])
+            command= self.normal_start())
         self.normal_start_button.grid(row=3, column=1, pady=5, sticky=NSEW)
         
         # Random game mode
@@ -318,19 +318,7 @@ class App:
             font=("Comic sans", 32), 
             command=lambda:[self.set_textbox_flag(), self.text_box_start()])
         self.text_box_start_button.grid(row=5, column=1, pady=5, sticky=NSEW)
-        
-
-
-        #Stop button for text mode        
-        self.stop_button = Button(
-            self.root, 
-            fg="black", 
-            bg="red4" ,
-            activebackground="green",
-            text="Quit game", 
-            font=("Comic sans", 32), 
-            command=lambda:[self.game_finished_show_main_menu()()])
-        
+               
 
         # Single text field for both X and Y position, enter like "342 555"
         self.text_field = Entry(
@@ -373,20 +361,6 @@ class App:
         self.normal_gameflag = False
         self.random_gameflag = False
         self.text_box_gameflag = False
-
-    def set_normal_flag(self):
-        print("normal game selected")
-        self.normal_gameflag = True
-
-
-    def set_random_flag(self):
-        print("random game selected")
-        self.random_gameflag = True
-        
-
-    def set_textbox_flag(self):
-        print("text_box game selected")
-        self.text_box_gameflag = True
 
     def send_text_field(self):
         value = self.text_field.get()
@@ -578,8 +552,10 @@ class App:
         
 
     def normal_start(self):
+        self.normal_gameflag = True
         self.clock_counter = 60
 
+        
         self.update_clock()
         self.video_stream()
         self.grid_remover()
@@ -594,6 +570,7 @@ class App:
 
 
     def random_start(self):
+        self.random_gameflag = True
         self.clock_counter = 60
 
         self.update_clock()
@@ -608,6 +585,7 @@ class App:
         t2.start()
 
     def text_box_start(self):
+        self.text_box_gameflag = True
         #self.update_clock()
         self.video_stream()
         self.grid_remover()
@@ -627,11 +605,11 @@ if __name__ == "__main__":
     app = App(root)
     root.mainloop()
 
-
-    try:
+    """try:
         tracking_system.start()
         while not tracking_system.stop_threads:
             sleep(0.1)
     finally:
         tracking_system.stop()
         print("Program stopped!")
+"""
