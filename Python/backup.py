@@ -122,8 +122,6 @@ class App:
             font=("Comic sans", 48))
         self.clock_label.grid(row=1, column=3, sticky=N)
 
-        #Stop button for text mode        
-        self.stop_button = Button(self.root, fg="black", bg="red4" ,activebackground="green",text="Quit game", font=("Comic sans", 32), command=lambda:[self.stop()])
 
         # Button for high score list
         self.high_score_button = Button(
@@ -135,7 +133,6 @@ class App:
             command=self.show_high_score)
         self.high_score_button.grid(row=3, column=2, pady=5, sticky=NSEW)
 
-<<<<<<< HEAD
         # Normal game mode
         self.normal_start_button = Button(
             self.root, 
@@ -145,16 +142,6 @@ class App:
             text="Normal", 
             font=("Comic sans", 32), 
             command=lambda:[self.set_normal_flag(), self.normal_start()])
-=======
-        self.title_label.grid(row=0, column=0, pady=5, columnspan=4)
-        # Column 0
-        self.current_position.grid(row=1, column=0, sticky=NW)
-        self.text_field.grid(row=2, column=0, sticky=NW)
-        self.text_field_button.grid(row=3, column=0, sticky=NW)
-        
-
-        # Column 1
->>>>>>> 0fb77c79c9f979a2e39eb6491cb9e94c8dea3b2d
         self.normal_start_button.grid(row=3, column=1, pady=5, sticky=NSEW)
         
         # Random game mode
