@@ -62,7 +62,7 @@ class App:
 
         # Counter for position array
         self.next_position_array_x = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-        self.next_position_array_y = [2, 4, 6 ,8 ,10 ,12, 14, 16, 18, 20]
+        self.next_position_array_y = [2, 4, 6 ,8 ,10 ,12, 14, 16, 18, 20, 12, 14, 16 ,18 ,110 ,112, 114, 116, 118, 120]
 
         # Thread event for synchronization
         self.position_event = threading.Event()
@@ -72,6 +72,7 @@ class App:
         self.clock_counter = 60
 
         self.counter = 0
+        self.position_counter = 0
 
     def create_widgets(self):
         self.title_label = Label(self.root, text="Moving Targets inc.", font=("Comic sans", 72), fg="black", bg="red4")
@@ -186,12 +187,12 @@ class App:
 
             self.next_update = time.time() + self.next_update_interval
             # Grabs data from new_position_x & y arrays
-            self.new_position_x = self.next_position_array_x[self.counter]
-            self.new_position_y = self.next_position_array_y[self.counter]
+            self.new_position_x = self.next_position_array_x[self.position_counter]
+            self.new_position_y = self.next_position_array_y[self.position_counter]
 
             dx = self.new_position_x - self.position_x
             dy = self.new_position_y - self.position_y
-
+            print(self.position_counter)
             if dx != 0 or dy != 0:  # Only move if dx or dy have changed
                 MotorControl.Amove(MotorControl.deltaA(dx, dy))
                 MotorControl.Bmove(MotorControl.deltaB(dx, dy))
@@ -200,7 +201,7 @@ class App:
                     text=f"current position: {self.position_x}, {self.position_y}", 
                     font=("Arial", 14)
                 )
-                self.counter = (self.counter+1)%len(self.next_position_array_x)
+                self.position_counter = (self.position_counter+1)%len(self.next_position_array_x)
             else:
                 print("No position change, skipping motor movement.")
             time.sleep(self.next_update_interval)
