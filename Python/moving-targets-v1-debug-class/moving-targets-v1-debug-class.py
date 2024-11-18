@@ -1,3 +1,4 @@
+
 from tkinter import *
 import numpy as np
 import threading
@@ -27,7 +28,7 @@ class MotorControl:
 class Sensor:
     @staticmethod
     def read():
-        x = np.random.randint(0, 2)
+        x = np.random.randint(0, 3)
         time.sleep(0.1)
         return x == 1
 
@@ -156,9 +157,16 @@ class App:
         self.clock_label.after(1000, self.update_clock)
 
     def update_score(self):
-        if Sensor.read():
-            self.counter += 1
-            self.score_label.config(text=f"{self.counter} pts")
+        #addet game finished her
+        if self.clock_counter <= 0:
+            self.game_finished()
+        while self.clock_counter > 0:
+            if Sensor.read():
+                self.counter += 1
+                self.score_label.config(text=f"{self.counter} pts")
+                time.sleep(1) 
+                #tid mellom hver gang du kan få poeng, så du ikke kan spamme. LOCKOUT funksjon
+                #funker dårlig med random, men kommer nok til å funke med sensor
 
     def video_stream(self):
         _, frame = self.cap.read()
@@ -172,7 +180,7 @@ class App:
     def normal_game_mode(self):
         self.next_update_interval = 2
 
-        while True:  # Keep running unless you have a stopping condition
+        while self.clock_counter > 0:  # Keep running unless you have a stopping condition
             # Wait for the next X and Y positions
             #new_position_x, new_position_y = self.get_next_position()
 
@@ -255,6 +263,17 @@ class App:
             self.text_field_button.grid_remove()    
             print("text field and button removed")
 
+    def game_finished_tkinter(self):
+        #tk kode for finished screen med poeng
+        return
+
+    #funksjon som må være damoen threada
+    def game_finished(self):
+        self.switch = True
+        while self.switch:
+            if self.clock_counter <= 0:
+                self.game_finished_tkinter()
+                self.switch = False
 
         
 
@@ -270,6 +289,7 @@ class App:
 
         t1.start()
         t2.start()
+
         
 
     def random_start(self):
@@ -280,9 +300,10 @@ class App:
         # Start threads for regular task and sensor task
         t1 = threading.Thread(target=self.random_game_mode, daemon=True)
         t2 = threading.Thread(target=self.update_score, daemon=True)
-
+     
         t1.start()
         t2.start()
+
         
 
     def text_box_start(self):
@@ -296,6 +317,7 @@ class App:
 
         t1.start()
         t2.start()
+
 
 if __name__ == "__main__":
     root = Tk()
