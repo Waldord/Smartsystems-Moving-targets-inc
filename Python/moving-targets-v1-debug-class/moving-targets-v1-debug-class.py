@@ -1,5 +1,6 @@
 
 from tkinter import *
+from tkinter import simpledialog
 import numpy as np
 import threading
 import time
@@ -74,44 +75,154 @@ class App:
         self.counter = 0
         self.position_counter = 0
 
+        # Flag for exiting some game modes
+        self.running = True
+
+        self.entered_username_flag = False
+        self.username_saved_flag = False
+
+        self.t1 = threading.Thread
+        self.t2 = threading.Thread
+
+
+
     def create_widgets(self):
-        self.title_label = Label(self.root, text="Moving Targets inc.", font=("Comic sans", 72), fg="black", bg="red4")
-        self.score_label = Label(self.root, fg="black", bg="red4" ,text="", font=("Comic sans", 48))
-        self.current_position = Label(self.root, fg="black", bg="red4" , text="", font=("Comic sans", 48))
-        self.clock_label = Label(self.root, fg="black", bg="red4" ,font=("Comic sans", 48))
+        # Title
+        self.title_label = Label(
+            self.root, 
+            text="Moving Targets inc.", 
+            font=("Comic sans", 72), 
+            fg="black", 
+            bg="red4")
+        self.title_label.grid(row=0, column=0, pady=5, columnspan=4) 
 
-        # Buttons that choose game mode
-        self.normal_start_button = Button(self.root, fg="black", bg="red4" ,activebackground="green",text="Normal", font=("Comic sans", 32), command=lambda:[self.set_normal_flag(), self.normal_start()])
-        self.random_start_button = Button(self.root, fg="black", bg="red4" ,activebackground="green",text="Random", font=("Comic sans", 32), command=lambda:[self.set_random_flag(), self.random_start()])
-        self.text_box_start_button = Button(self.root, fg="black", bg="red4" ,activebackground="green",text="Text Box", font=("Comic sans", 32), command=lambda:[self.set_textbox_flag(), self.text_box_start()])
+        # Player score
+        self.score_label = Label(
+            self.root, 
+            fg="black", 
+            bg="red4" ,
+            text="", 
+            font=("Comic sans", 48))
+        self.score_label.grid(row=1, column=2, pady=5, sticky=NW)
+
+        # Motor stepper current position
+        self.current_position = Label(
+            self.root, 
+            fg="black", 
+            bg="red4" , 
+            text="", 
+            font=("Comic sans", 48))
+        self.current_position.grid(row=1, column=0, sticky=NW)      
+
+        # Clock label
+        self.clock_label = Label(
+            self.root, 
+            fg="black", 
+            bg="red4" ,
+            font=("Comic sans", 48))
+        self.clock_label.grid(row=1, column=3, sticky=N)
 
 
-        # Single text field and button for both X and Y
-        self.text_field = Entry(self.root, fg="black", bg="red4", font=("Arial", 14))
-        self.text_field_button = Button(self.root, fg="black", bg="red4" ,text="Set Position", font=("Arial", 14), command=self.send_text_field)
+        # Button for high score list
+        self.high_score_button = Button(
+            self.root, 
+            fg="black", 
+            bg="red4", 
+            text="High Score", 
+            font=("Comic sans", 32), 
+            command=self.show_high_score)
+        self.high_score_button.grid(row=3, column=2, pady=5, sticky=NSEW)
 
-        self.title_label.grid(row=0, column=0, pady=5, columnspan=4)
-        # Column 0
-        self.current_position.grid(row=1, column=0, sticky=NW)
-        self.text_field.grid(row=2, column=0, sticky=NW)
-        self.text_field_button.grid(row=3, column=0, sticky=NW)
-
-        # Column 1
+        # Normal game mode
+        self.normal_start_button = Button(
+            self.root, 
+            fg="black", 
+            bg="red4" ,
+            activebackground="green",
+            text="Normal", 
+            font=("Comic sans", 32), 
+            command=lambda:[self.set_normal_flag(), self.normal_start()])
         self.normal_start_button.grid(row=3, column=1, pady=5, sticky=NSEW)
+        
+        # Random game mode
+        self.random_start_button = Button(
+            self.root, 
+            fg="black", 
+            bg="red4" ,
+            activebackground="green",
+            text="Random", 
+            font=("Comic sans", 32), 
+            command=lambda:[self.set_random_flag(), self.random_start()])
         self.random_start_button.grid(row=4, column=1, pady=5, sticky=NSEW)
+        
+        # Text field game mode (debug)
+        self.text_box_start_button = Button(
+            self.root, 
+            fg="black", 
+            bg="red4" ,
+            activebackground="green",
+            text="Text Box", 
+            font=("Comic sans", 32), 
+            command=lambda:[self.set_textbox_flag(), self.text_box_start()])
         self.text_box_start_button.grid(row=5, column=1, pady=5, sticky=NSEW)
         
 
-        # Column 2
-        self.score_label.grid(row=1, column=2, pady=5, sticky=NW)
-        self.clock_label.grid(row=1, column=3, sticky=N)
-        # Column 3
+
+        #Stop button for text mode        
+        self.stop_button = Button(
+            self.root, 
+            fg="black", 
+            bg="red4" ,
+            activebackground="green",
+            text="Quit game", 
+            font=("Comic sans", 32), 
+            command=lambda:[self.stop()])
         
-        # Column 4
-        self.app_frame = LabelFrame(self.root, fg="black", bg="red4", text="TURRET-POV", padx=10, pady=10)
+
+        # Single text field for both X and Y position, enter like "342 555"
+        self.text_field = Entry(
+            self.root, 
+            fg="black", 
+            bg="red4", 
+            font=("Arial", 14))
+        self.text_field.grid(row=2, column=0, sticky=NW)
+        
+        # text field button, which sends data entered in text field to motor controller
+        self.text_field_button = Button(
+            self.root, 
+            fg="black", 
+            bg="red4" ,
+            text="Set Position", 
+            font=("Arial", 14), 
+            command=self.send_text_field)
+        self.text_field_button.grid(row=3, column=0, sticky=NW)
+
+
+        # Camera frame text
+        self.app_frame = LabelFrame(
+            self.root, 
+            fg="black", 
+            bg="red4", 
+            text="TURRET-POV", 
+            padx=10, 
+            pady=10)
         self.app_frame.grid(row=0, column=5, rowspan=7,columnspan=7, pady=15, sticky=SE)
-        self.lmain = Label(self.app_frame, fg="black", bg="red4" ,)
+        
+        # Camera frame
+        self.lmain = Label(
+            self.app_frame, 
+            fg="black", 
+            bg="red4" ,)
         self.lmain.grid(row=1, column=5, sticky=NSEW)    
+
+    def show_main_menu(self):
+        # Clear all widgets currently displayed
+        for widget in self.root.winfo_children():
+            widget.destroy()
+
+        # Recreate the main menu
+        self.create_widgets()
+        print("Returned to main menu")
 
     def set_normal_flag(self):
         print("normal game selected")
@@ -150,6 +261,37 @@ class App:
         print("after clear")
         return self.new_position_x, self.new_position_y
 
+
+    def show_high_score(self):
+        # Create high score window
+        high_score_window = Toplevel(self.root)
+        high_score_window.title("Highscore")
+        high_score_window.geometry("400x600")
+        high_score_window.configure(bg="Gray30")
+
+        title =Label(high_score_window, text="Highscore", font=("Comic sans", 32), fg="black", bg="Red4" )
+        scores = self.load_highscore()
+
+        for idx, (name, score) in enumerate(scores, start=1):
+            score_label = Label(high_score_window, text=f"{idx}. {name} - {score} pts", font=("Arial", 18), bg="Gray30", fg="white")
+            score_label.pack(pady=5)
+
+    def load_highscore(self):
+        try:
+            with open("Highscore.txt", "r") as file:
+                scores = [line.strip().split(",") for line in file.readlines()]
+                return sorted([(name, int(score)) for name, score in scores], key=lambda x: x[1], reverse=True)
+        except FileNotFoundError:
+            return []
+        
+    def save_high_scores(self, name, score):
+        scores = self.load_highscore()
+        scores.append((name, score))
+        scores = sorted(scores, key=lambda x: x[1], reverse = True)[:10] # [:10] is the amount of scores to be kept
+        with open("Highscore.txt", "w") as file:
+            for name, score in scores:
+                file.write(f"{name},{score}\n")
+
     def update_clock(self):
         if self.clock_counter > 0:
             self.clock_counter -= 1
@@ -177,6 +319,14 @@ class App:
         self.lmain.imgtk = imgtk
         self.lmain.configure(image=imgtk)
         self.lmain.after(10, self.video_stream)
+    
+    #Terminates tk window
+    def stop(self):
+        self.root.destroy()
+        
+    #deployes the stop button
+    def stop_button_deploy(self):
+        self.stop_button.grid(row=4, column=0, sticky=NW)
 
     def normal_game_mode(self):
         self.next_update_interval = 2
@@ -208,7 +358,7 @@ class App:
                 
     def random_game_mode(self):
         self.next_update_interval = 2
-        while True:  
+        while self.clock_counter > 0:  
             self.next_update = time.time()+self.next_update_interval
             # Generate random numbers between 0, 40 for x and y positions
             self.new_position_x = np.random.randint(0,40)
@@ -264,11 +414,36 @@ class App:
             self.text_field_button.grid_remove()    
             print("text field and button removed")
 
-    def game_finished(self):
+    def game_finished_old(self):
         #tk kode for finished screen med poeng
         self.clock_label.grid_remove()
         self.current_position.grid_remove()
         self.score_label.config(font=("arial" , 72))
+
+    def game_finished(self):
+        self.running = False
+        if self.clock_counter <= 0 and self.entered_username_flag == False:
+            self.entered_username_flag = True
+            name = simpledialog.askstring("Game Over", "Enter your name for the high score list:")
+            print(f"Scores to save: {self.counter}")
+            if name:
+                self.save_high_scores(name, self.counter)
+                self.username_saved_flag = True
+        if self.username_saved_flag == True:
+            self.game_finished_show_main_menu()
+    
+    def game_finished_show_main_menu(self):
+        print("hello")
+        self.username_saved_flag = False
+        if self.t1.is_alive():
+            self.t1.join(timeout=1)
+        if self.t2.is_alive():
+            self.t2.join(timeout=1)
+        # Clear all widgets currently displayed
+        for widget in self.root.winfo_children():
+            widget.destroy()
+        self.create_widgets()
+          
 
     def normal_start(self):
         self.update_clock()
@@ -277,11 +452,11 @@ class App:
         #Removes start menu buttons
 
         # Start threads for regular task and sensor task
-        t1 = threading.Thread(target=self.normal_game_mode, daemon=True)
-        t2 = threading.Thread(target=self.update_score, daemon=True)
+        self.t1 = threading.Thread(target=self.normal_game_mode, daemon=True)
+        self.t2 = threading.Thread(target=self.update_score, daemon=True)
 
-        t1.start()
-        t2.start()
+        self.t1.start()
+        self.t2.start()
 
         
 
@@ -297,13 +472,15 @@ class App:
         t1.start()
         t2.start()
 
-        
+
 
     def text_box_start(self):
         #self.update_clock()
         self.video_stream()
         self.grid_remover()
-
+        self.stop_button_deploy()
+        
+        
         # Start threads for regular task and sensor task
         t1 = threading.Thread(target=self.text_box_game_mode, daemon=True)
         t2 = threading.Thread(target=self.update_score, daemon=True)

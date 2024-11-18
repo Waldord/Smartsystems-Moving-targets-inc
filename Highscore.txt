@@ -1,0 +1,5 @@
+rob,46
+balto,46
+geir,45
+aashild,45
+sven,45
