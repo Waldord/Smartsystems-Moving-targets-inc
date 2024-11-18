@@ -70,7 +70,7 @@ class App:
         
         self.create_widgets()
         self.cap = cv2.VideoCapture(0)
-        self.clock_counter = 60
+        self.clock_counter = 0
 
         self.counter = 0
         self.position_counter = 0
@@ -89,7 +89,6 @@ class App:
     def create_widgets(self):
 
         # Resets clock_counter and points
-        self.clock_counter = 60
         self.counter = 0
         # Title
         self.title_label = Label(
@@ -127,7 +126,14 @@ class App:
         self.clock_label.grid(row=1, column=3, sticky=N)
 
         #Stop button for text mode        
-        self.stop_button = Button(self.root, fg="black", bg="red4" ,activebackground="green",text="Quit game", font=("Comic sans", 32), command=lambda:[self.stop()])
+        self.stop_button = Button(
+            self.root, 
+            fg="black", 
+            bg="red4" ,
+            activebackground="green",
+            text="Quit game", 
+            font=("Comic sans", 32), 
+            command=lambda:[self.game_finished_show_main_menu()])
 
         # Button for high score list
         self.high_score_button = Button(
@@ -291,7 +297,7 @@ class App:
 
     def update_clock(self):
         if self.clock_counter > 0:
-            self.clock_counter -= 1
+            self.clock_counter -= 10
         minute, second = divmod(self.clock_counter, 60)
         self.clock_label.config(text=f"{minute}:{second:02}")
         self.clock_label.after(1000, self.update_clock)
@@ -319,7 +325,7 @@ class App:
     
     #Terminates tk window
     def stop(self):
-        self.root.destroy()
+        self.game_finished_show_main_menu()
         
     #deployes the stop button
     def stop_button_deploy(self):
@@ -431,7 +437,7 @@ class App:
             self.game_finished_show_main_menu()
     
     def game_finished_show_main_menu(self):
-        print("hello")
+        self.clock_counter = 0
         self.entered_username_flag = False
         self.username_saved_flag = False
         if self.t1.is_alive():
@@ -446,6 +452,8 @@ class App:
           
 
     def normal_start(self):
+        self.clock_counter = 60
+
         self.update_clock()
         self.video_stream()
         self.grid_remover()
@@ -461,6 +469,8 @@ class App:
         
 
     def random_start(self):
+        self.clock_counter = 60
+
         self.update_clock()
         self.video_stream()
         self.grid_remover()

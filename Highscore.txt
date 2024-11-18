@@ -3,8 +3,8 @@ Fredrik,47
 Loser,47
 rob,46
 balto,46
-Anonym,46
-geir,45
-aashild,45
 sven,45
 Kadir,45
+Winner,5
+Askeladden,4
+Pål,4
