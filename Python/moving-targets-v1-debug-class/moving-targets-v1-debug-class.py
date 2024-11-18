@@ -85,6 +85,8 @@ class App:
         self.random_start_button = Button(self.root, fg="black", bg="red4" ,activebackground="green",text="Random", font=("Comic sans", 32), command=lambda:[self.set_random_flag(), self.random_start()])
         self.text_box_start_button = Button(self.root, fg="black", bg="red4" ,activebackground="green",text="Text Box", font=("Comic sans", 32), command=lambda:[self.set_textbox_flag(), self.text_box_start()])
 
+        #Stop button for text mode        
+        self.stop_button = Button(self.root, fg="black", bg="red4" ,activebackground="green",text="Quit game", font=("Comic sans", 32), command=lambda:[self.stop()])
 
         # Single text field and button for both X and Y
         self.text_field = Entry(self.root, fg="black", bg="red4", font=("Arial", 14))
@@ -95,6 +97,7 @@ class App:
         self.current_position.grid(row=1, column=0, sticky=NW)
         self.text_field.grid(row=2, column=0, sticky=NW)
         self.text_field_button.grid(row=3, column=0, sticky=NW)
+        
 
         # Column 1
         self.normal_start_button.grid(row=3, column=1, pady=5, sticky=NSEW)
@@ -177,6 +180,14 @@ class App:
         self.lmain.imgtk = imgtk
         self.lmain.configure(image=imgtk)
         self.lmain.after(10, self.video_stream)
+    
+    #Terminates tk window
+    def stop(self):
+        self.root.destroy()
+        
+    #deployes the stop button
+    def stop_button_deploy(self):
+        self.stop_button.grid(row=4, column=0, sticky=NW)
 
     def normal_game_mode(self):
         self.next_update_interval = 2
@@ -208,7 +219,7 @@ class App:
                 
     def random_game_mode(self):
         self.next_update_interval = 2
-        while True:  
+        while self.clock_counter > 0:  
             self.next_update = time.time()+self.next_update_interval
             # Generate random numbers between 0, 40 for x and y positions
             self.new_position_x = np.random.randint(0,40)
@@ -297,13 +308,15 @@ class App:
         t1.start()
         t2.start()
 
-        
+
 
     def text_box_start(self):
         #self.update_clock()
         self.video_stream()
         self.grid_remover()
-
+        self.stop_button_deploy()
+        
+        
         # Start threads for regular task and sensor task
         t1 = threading.Thread(target=self.text_box_game_mode, daemon=True)
         t2 = threading.Thread(target=self.update_score, daemon=True)
