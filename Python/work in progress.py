@@ -1,5 +1,4 @@
-"""Made by the only one"""
-
+"""Made by Eirik"""
 
 import cv2
 import threading
@@ -73,7 +72,7 @@ def processingThread():
             primaryBox = boxes[0]
 
             #Initialize the tracker
-            tracker = cv2.TrackerCRST_create()
+            tracker = cv2.TrackerCSRT_create()
             tracker.init(frame, tuple(primaryBox))
 
             #Lock on the target
@@ -137,3 +136,14 @@ finally:
     print("Program stopped!")
 
 
+
+#Coding Sources
+# HOG Descriptor: https://medium.com/@dnemutlu/hog-feature-descriptor-263313c3b40d
+# OpenCV Course: https://opencv.org/university/free-opencv-course/?utm_source=opcv&utm_medium=gsopcv
+# HOG Descriptor: https://docs.opencv.org/3.4/d5/d33/structcv_1_1HOGDescriptor.html
+# People Detection: https://www.youtube.com/watch?v=UQRW4B4_nmU
+# People Detection: https://www.youtube.com/watch?v=zyKam8pNjJ4
+# People Detection: https://www.youtube.com/watch?v=cvGEWBO0Vho
+# Threads: https://www.youtube.com/watch?v=IEEhzQoKtQU
+# OpenCV CSRT Tracker: https://stackoverflow.com/questions/65545311/how-to-use-the-csrt-tracker-correctly-to-track-objects-in-opencv
+# 
