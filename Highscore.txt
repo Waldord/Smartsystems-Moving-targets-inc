@@ -1,0 +1,10 @@
+Robin,91
+Fredrik,47
+Loser,47
+rob,46
+balto,46
+sven,45
+Kadir,45
+Winner,5
+Askeladden,4
+Pål,4
