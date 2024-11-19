@@ -7,17 +7,21 @@ import time
 from PIL import ImageTk, Image
 import cv2
 import sys
-from gpiozero import Servo
+from gpiozero import Servo, OutputDevice
+
 from time import sleep
 
 class MotorControl:
     @staticmethod
     def Amove(z):
         print(z, "| A motor steps")
+        steppercontroller1.move_to(z)
+
 
     @staticmethod
     def Bmove(z):
         print(z, "| B motor steps")
+        steppercontroller2.move_to(z)
 
     @staticmethod
     def deltaA(delX, delY):
@@ -26,6 +30,68 @@ class MotorControl:
     @staticmethod
     def deltaB(delX, delY):
         return delX - delY
+
+class StepperMotor:
+    def __init__(self, step_pin, dir_pin, en_pin, steps_per_rev=200):
+        # Define pins
+        self.step_pin = OutputDevice(step_pin)
+        self.dir_pin = OutputDevice(dir_pin)
+        self.en_pin = OutputDevice(en_pin)
+        
+        # Motor settings
+        self.steps_per_rev = steps_per_rev
+        self.max_speed = 1000.0
+        self.acceleration = 200.0
+        self.current_speed = 200.0
+        self.target_position = 0
+        self.current_position = 0
+        self.step_delay = 0.001
+        self.running = False
+
+    def set_max_speed(self, speed):
+        self.max_speed = speed
+
+    def set_acceleration(self, acceleration):
+        self.acceleration = acceleration
+
+    def set_speed(self, speed):
+        self.current_speed = min(speed, self.max_speed)
+        self.step_delay = 1 / self.current_speed
+
+    def move_to(self, position):
+        self.target_position = position
+        self.running = True
+        if not hasattr(self, 'thread') or not self.thread.is_alive():
+            self.thread = Thread(target=self.run)
+            self.thread.start()
+
+    def run(self):
+        while self.running:
+            distance_to_go = self.target_position - self.current_position
+            if distance_to_go == 0:
+                self.running = False
+                break
+
+            # Set direction
+            self.dir_pin.value = distance_to_go > 0
+
+            # Accelerate/decelerate logic (simplified for demonstration)
+            if self.acceleration > 0:
+                if abs(self.current_speed) < self.max_speed:
+                    self.current_speed += self.acceleration * 0.01
+                    self.set_speed(self.current_speed)
+            self.step_pin.on()
+            time.sleep(self.step_delay)
+            self.step_pin.off()
+            time.sleep(self.step_delay)
+
+            # Update current position
+            self.current_position += 1 if self.dir_pin.value else -1
+
+    def stop(self):
+        self.running = False
+        if hasattr(self, 'thread'):
+            self.thread.join()
 
 
 class Sensor:
@@ -202,7 +268,7 @@ class App:
 
         # Counter for position array
         self.next_position_array_x = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-        self.next_position_array_y = [2, 4, 6 ,8 ,10 ,12, 14, 16, 18, 20, 12, 14, 16 ,18 ,110 ,112, 114, 116, 118, 120]
+        self.next_position_array_y = [2, 4, 6 ,8 ,10 ,12, 14, 16, 18, 20]
 
         # Thread event for synchronization
         self.position_event = threading.Event()
@@ -557,7 +623,8 @@ class App:
 
         
         self.update_clock()
-        self.video_stream()
+        #self.video_stream()
+        tracking_system.start()
         self.grid_remover()
         #Removes start menu buttons
 
@@ -603,13 +670,14 @@ if __name__ == "__main__":
     root = Tk()
     tracking_system = HumanTrackingSystem()
     app = App(root)
+    steppercontroller1 = StepperMotor(21, 16, 20)
+    steppercontroller2 = StepperMotor()
     root.mainloop()
 
-    """try:
+    try:
         tracking_system.start()
         while not tracking_system.stop_threads:
             sleep(0.1)
     finally:
         tracking_system.stop()
         print("Program stopped!")
-"""
