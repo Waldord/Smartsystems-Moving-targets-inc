@@ -1,4 +1,3 @@
-
 from tkinter import *
 from tkinter import simpledialog
 import numpy as np
@@ -32,6 +31,10 @@ class Sensor:
         x = np.random.randint(0, 3)
         time.sleep(0.1)
         return x == 1
+
+
+
+
 
 
 class App:

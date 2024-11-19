@@ -7,7 +7,7 @@ import time
 from PIL import ImageTk, Image
 import cv2
 import sys
-from gpiozero import Servo, OutputDevice
+#from gpiozero import Servo, OutputDevice
 
 from time import sleep
 
@@ -62,7 +62,7 @@ class StepperMotor:
         self.target_position = position
         self.running = True
         if not hasattr(self, 'thread') or not self.thread.is_alive():
-            self.thread = Thread(target=self.run)
+            self.thread = threading.Thread(target=self.run)
             self.thread.start()
 
     def run(self):
@@ -95,148 +95,16 @@ class StepperMotor:
 
 
 class Sensor:
-    @staticmethod
+    # Assigns GPIO pin 27 to infrared detector
+    IR_PIN = 27
+
+    def ir_callback(channel):
+        print(f"IR signal detected. Channel: {channel}, Time: {time.time()}")
+
     def read():
         x = np.random.randint(0, 3)
         time.sleep(0.1)
         return x == 1
-
-class ServoController:
-    def __init__(self, pin, angle_min=0, angle_max=180):
-        self.servo = Servo(pin)
-        self.angle_min = angle_min
-        self.angle_max = angle_max
-
-    def set_angle(self, angle):
-        """Converts angle (0-180) to servo position (-1 to 1) and sets it."""
-        position = (angle / 180) * 2 - 1
-        self.servo.value = max(-1, min(1, position))
-
-class Camera:
-    def __init__(self, frame_width=640, frame_height=480):
-        self.frame_width = frame_width
-        self.frame_height = frame_height
-        self.capture = cv2.VideoCapture(0)
-        self.capture.set(cv2.CAP_PROP_FRAME_WIDTH, frame_width)
-        self.capture.set(cv2.CAP_PROP_FRAME_HEIGHT, frame_height)
-        self.latest_frame = None
-        self.lock = threading.Lock()
-        self.stop_threads = False
-
-    def start_capture(self):
-        """Starts the camera capture in a separate thread."""
-        def capture_thread():
-            while not self.stop_threads:
-                ret, frame = self.capture.read()
-                if ret:
-                    with self.lock:
-                        self.latest_frame = frame.copy()
-                else:
-                    print("Failed to capture frame.")
-                    break
-
-        threading.Thread(target=capture_thread, daemon=True).start()
-
-    def get_frame(self):
-        """Returns the latest frame."""
-        with self.lock:
-            return self.latest_frame.copy() if self.latest_frame is not None else None
-
-    def release(self):
-        self.stop_threads = True
-        self.capture.release()
-
-class HumanTracker:
-    def __init__(self):
-        self.hog = cv2.HOGDescriptor()
-        self.hog.setSVMDetector(cv2.HOGDescriptor_getDefaultPeopleDetector())
-        self.tracker = None
-        self.target_locked = False
-
-    def detect_humans(self, frame):
-        """Detects humans in the frame using HOG."""
-        grayscale = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-        boxes, _ = self.hog.detectMultiScale(grayscale, winStride=(8, 8), scale=1.05)
-        return boxes
-
-    def initialize_tracker(self, frame, box):
-        """Initializes a tracker for the detected target."""
-        self.tracker = cv2.TrackerKCF_create()
-        self.tracker.init(frame, tuple(box))
-        self.target_locked = True
-
-    def update_tracker(self, frame):
-        """Updates the tracker and returns the updated bounding box."""
-        if self.tracker and self.target_locked:
-            success, box = self.tracker.update(frame)
-            if success:
-                return True, tuple(map(int, box))
-            else:
-                self.target_locked = False
-                self.tracker = None
-        return False, None
-
-class ServoPanTilt:
-    def __init__(self, pan_pin, tilt_pin):
-        self.pan_servo = ServoController(pan_pin)
-        self.tilt_servo = ServoController(tilt_pin)
-
-    def set_position(self, x, y, frame_width, frame_height):
-        """Calculates and sets servo positions based on target coordinates."""
-        pan_angle = int((x / frame_width) * 180)
-        tilt_angle = int((y / frame_height) * 180)
-        self.pan_servo.set_angle(pan_angle)
-        self.tilt_servo.set_angle(tilt_angle)
-        print(f"Pan: {pan_angle}, Tilt: {tilt_angle}")
-
-class HumanTrackingSystem:
-    def __init__(self):
-        self.camera = Camera()
-        self.tracker = HumanTracker()
-        self.servo_control = ServoPanTilt(pan_pin=17, tilt_pin=18)
-        self.stop_threads = False
-
-    def process_frames(self):
-        """Main processing loop."""
-        while not self.stop_threads:
-            frame = self.camera.get_frame()
-            if frame is None:
-                continue
-
-            if not self.tracker.target_locked:
-                # Detect humans
-                boxes = self.tracker.detect_humans(frame)
-                if len(boxes) > 0:
-                    primary_box = boxes[0]
-                    self.tracker.initialize_tracker(frame, primary_box)
-                    x, y, w, h = primary_box
-                    cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
-            else:
-                # Update tracker
-                success, box = self.tracker.update_tracker(frame)
-                if success:
-                    x, y, w, h = box
-                    person_center_x = x + w // 2
-                    person_center_y = y + h // 2
-                    self.servo_control.set_position(person_center_x, person_center_y, self.camera.frame_width, self.camera.frame_height)
-                    cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 0, 0), 2)
-
-            # Display the frame
-            cv2.imshow("Human Tracking", frame)
-            if cv2.waitKey(1) & 0xFF == ord('x'):
-                self.stop_threads = True
-                break
-
-    def start(self):
-        """Starts the human tracking system."""
-        self.camera.start_capture()
-        threading.Thread(target=self.process_frames, daemon=True).start()
-
-    def stop(self):
-        """Stops the human tracking system."""
-        self.stop_threads = True
-        self.camera.release()
-        cv2.destroyAllWindows()
 
 
 class App:
@@ -670,8 +538,10 @@ if __name__ == "__main__":
     root = Tk()
     tracking_system = HumanTrackingSystem()
     app = App(root)
+    # Pin 17 og 18 til servo
+    # StepperMotor(step_pin, dir_pin, en_pin)
     steppercontroller1 = StepperMotor(21, 16, 20)
-    steppercontroller2 = StepperMotor()
+    steppercontroller2 = StepperMotor(25, 23, 24)
     root.mainloop()
 
     try:
