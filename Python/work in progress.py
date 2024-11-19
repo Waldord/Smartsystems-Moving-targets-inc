@@ -60,13 +60,14 @@ def processingThread():
                 continue
             frame = latestFrame.copy()
 
-        # Convert frame to grayscale (optional for performance)
-        grayscale = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        #Only run the HOG descriptor when there is no tracker active
+        if not primaryTargetLocked:
+            # Convert frame to grayscale (optional for performance)
+            grayscale = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+            # Detect humans in frame
+            boxes, _ = hog.detectMultiScale(grayscale, winStride=(8, 8), scale=1.05)
 
-        # Detect humans in frame
-        boxes, _ = hog.detectMultiScale(grayscale, winStride=(8, 8), scale=1.05)
-
-        if len(boxes) > 0 and not primaryTargetLocked:
+        if len(boxes) > 0:
             # Select one target, e.g., the first detected person
             primaryBox = boxes[0]
 
