@@ -1,4 +1,4 @@
-"""Made by Eirik"""
+"""Made by Eirik, the one and only"""
 
 import cv2
 import threading
@@ -51,68 +51,55 @@ def cameraThread():
         with frameLock:
             latestFrame = frame.copy()
 
-#Processing Thread
+# Processing Thread
 def processingThread():
-    global latestFrame, stopThreads
+    global latestFrame, stopThreads, tracker, primaryTargetLocked
     while not stopThreads:
         with frameLock:
             if latestFrame is None:
                 continue
             frame = latestFrame.copy()
-        
-        #Convert frame to grayscale
-        #Not obligatory, but can improve performance
+
+        # Convert frame to grayscale (optional for performance)
         grayscale = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
-        #Detect humans in frame
+        # Detect humans in frame
         boxes, _ = hog.detectMultiScale(grayscale, winStride=(8, 8), scale=1.05)
 
-        if len(boxes) > 0:
-            #Select one target, this chooses the first person it detects
+        if len(boxes) > 0 and not primaryTargetLocked:
+            # Select one target, e.g., the first detected person
             primaryBox = boxes[0]
 
-            #Initialize the tracker
+            # Initialize the tracker
             tracker = cv2.TrackerCSRT_create()
             tracker.init(frame, tuple(primaryBox))
 
-            #Lock on the target
+            # Lock on the target
             primaryTargetLocked = True
 
-            #Draw rectangle around the person
+            # Draw rectangle around the person
             x, y, w, h = primaryBox
-            cv2.rectangle(frame, (x,y), (x + w, y + h), (0, 255, 0), 2)
+            cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
 
-        else:
-            #Make the tracker follow the primary target
+        elif primaryTargetLocked:
+            # Make the tracker follow the primary target
             success, box = tracker.update(frame)
 
             if success:
                 x, y, w, h = map(int, box)
-                #Draw a rectangle on the person when in tracking mode
-                cv2.rectangle(frame, (x,y), (x + w, y + h), (255, 0, 0), 2)
+                # Draw a rectangle on the person when in tracking mode
+                cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 0, 0), 2)
             else:
-                #When target moves out of frame, reset the tracker
+                # Reset tracker if the target is lost
                 primaryTargetLocked = False
                 tracker = None
 
-            #Get coordinates of the detected person
-            x, y, w, h = boxes[0]
-            personCenterX = x + w // 2
-            personCenterY = y + h // 2
-
-            #Convert coordinates to servo angles
-            panAngle = int(panMin + (personCenterX / frameWidth) * (panMax - panMin))
-            tiltAngle = int(tiltMin + (personCenterY / frameHeight) * (tiltMax - tiltMin))
-
-            #Move servos to position 
-            panServo.value = angleToServoPos(panAngle)
-            tiltServo.value = angleToServoPos(tiltAngle)
-            print(f"Pan: {panAngle}, Tilt: {tiltAngle}")
-
-        #Display video
+        # Display video
         cv2.imshow("Frame", frame)
         if cv2.waitKey(1) & 0xFF == ord('X'):
             stopThreads = True
+            break
+
         
 
 #Start the threads
