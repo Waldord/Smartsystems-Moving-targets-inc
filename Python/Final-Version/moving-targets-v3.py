@@ -7,7 +7,7 @@ import time
 from PIL import ImageTk, Image
 import cv2
 import sys
-#from gpiozero import Servo, OutputDevice
+from gpiozero import Servo, OutputDevice
 
 from time import sleep
 
@@ -228,7 +228,7 @@ class App:
             activebackground="green",
             text="Normal", 
             font=("Comic sans", 32), 
-            command= self.normal_start())
+            command= lambda:[self.set_normal_flag(),self.normal_start()])
         self.normal_start_button.grid(row=3, column=1, pady=5, sticky=NSEW)
         
         # Random game mode
@@ -290,6 +290,19 @@ class App:
             bg="red4" ,)
         self.lmain.grid(row=1, column=5, sticky=NSEW)    
 
+    def set_normal_flag(self):
+        print("normal game selected")
+        self.normal_gameflag = True
+
+
+    def set_random_flag(self):
+        print("random game selected")
+        self.random_gameflag = True
+        
+
+    def set_textbox_flag(self):
+        print("text_box game selected")
+        self.text_box_gameflag = True
 
     def reset_flags(self):
         self.normal_gameflag = False
@@ -492,7 +505,6 @@ class App:
         
         self.update_clock()
         #self.video_stream()
-        tracking_system.start()
         self.grid_remover()
         #Removes start menu buttons
 
@@ -522,7 +534,7 @@ class App:
     def text_box_start(self):
         self.text_box_gameflag = True
         #self.update_clock()
-        self.video_stream()
+        #self.video_stream()
         self.grid_remover()
         self.stop_button_deploy()
         
@@ -536,18 +548,10 @@ class App:
 
 if __name__ == "__main__":
     root = Tk()
-    tracking_system = HumanTrackingSystem()
+
     app = App(root)
     # Pin 17 og 18 til servo
     # StepperMotor(step_pin, dir_pin, en_pin)
     steppercontroller1 = StepperMotor(21, 16, 20)
     steppercontroller2 = StepperMotor(25, 23, 24)
     root.mainloop()
-
-    try:
-        tracking_system.start()
-        while not tracking_system.stop_threads:
-            sleep(0.1)
-    finally:
-        tracking_system.stop()
-        print("Program stopped!")

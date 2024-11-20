@@ -60,29 +60,28 @@ def processingThread():
                 continue
             frame = latestFrame.copy()
 
-        #Only run the HOG descriptor when there is no tracker active
         if not primaryTargetLocked:
             # Convert frame to grayscale (optional for performance)
             grayscale = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
             # Detect humans in frame
             boxes, _ = hog.detectMultiScale(grayscale, winStride=(8, 8), scale=1.05)
 
-        if len(boxes) > 0:
-            # Select one target, e.g., the first detected person
-            primaryBox = boxes[0]
+            if len(boxes) > 0:
+                # Select one target, e.g., the first detected person
+                primaryBox = boxes[0]
 
-            # Initialize the tracker
-            tracker = cv2.TrackerCSRT_create()
-            tracker.init(frame, tuple(primaryBox))
+                # Initialize the tracker
+                tracker = cv2.TrackerCSRT_create()
+                tracker.init(frame, tuple(primaryBox))
 
-            # Lock on the target
-            primaryTargetLocked = True
+                # Lock on the target
+                primaryTargetLocked = True
 
-            # Draw rectangle around the person
-            x, y, w, h = primaryBox
-            cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
+                # Draw rectangle around the person
+                x, y, w, h = primaryBox
+                cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
 
-        elif primaryTargetLocked:
+        else:
             # Make the tracker follow the primary target
             success, box = tracker.update(frame)
 
