@@ -34,6 +34,7 @@ class MotorControl:
             print(steps, "| A motor steps")
             stepperMotorA.set_speed_fullstep (steps/duration)
             stepperMotorA.run_to_position_steps(steps)
+            print(stepperMotorA.get_current_position)
         
 
 
@@ -50,9 +51,11 @@ class MotorControl:
 
             stepperMotorB.set_acceleration(2000)
             stepperMotorB.set_max_speed(1500)
-        print(steps, "| B motor steps")
-        stepperMotorB.run_to_position_steps(steps)
-        stepperMotorB.set_speed_fullstep (steps/2)
+        if duration is not None:
+            print(steps, "| B motor steps")
+            stepperMotorB.run_to_position_steps(steps)
+            stepperMotorB.set_speed_fullstep (steps/2)
+            print(stepperMotorB.get_current_position)
 
     @staticmethod
     def deltaA(delX, delY):
