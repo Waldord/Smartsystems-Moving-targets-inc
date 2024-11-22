@@ -12,21 +12,44 @@ from TMC_2209.TMC_2209_StepperDriver import *
 
 from time import sleep
 
-class MotorControl:
-    def __init__(self, motor_a, motor_b):
-        self.motor_a = motor_a
-        self.motor_b = motor_b
+class MotorControl:    
+    def __init__(self):
+        self.aFlag = False
+        self.bFlag = False
 
-    @staticmethod
-    def Amove(steps):
-        print(steps, "| A motor steps")
+    def Amove(self, steps, duration=None):
+        if self.aFlag is False:
+            self.aFlag = True
+            stepperMotorA.set_direction_reg(False)
+            stepperMotorA.set_current(800)
+            stepperMotorA.set_interpolation(True)
+            stepperMotorA.set_spreadcycle(False)
+            stepperMotorA.set_microstepping_resolution(2)
+            stepperMotorA.set_internal_rsense(False)
+
+            stepperMotorA.set_acceleration(2000)
+            stepperMotorA.set_max_speed(1500)
+
+        if duration is not None:
+            print(steps, "| A motor steps")
+            stepperMotorA.set_speed_fullstep (steps/duration)
+            stepperMotorA.run_to_position_steps(steps)
         
-        stepperMotorA.run_to_position_steps(steps)
-        stepperMotorA.set_speed_fullstep (steps/2)
 
 
-    @staticmethod
-    def Bmove(steps):
+    
+    def Bmove(self, steps, duration=None):            
+        if self.bFlag is False:
+            self.bFlag = True
+            stepperMotorB.set_direction_reg(False)
+            stepperMotorB.set_current(800)
+            stepperMotorB.set_interpolation(True)
+            stepperMotorB.set_spreadcycle(False)
+            stepperMotorB.set_microstepping_resolution(2)
+            stepperMotorB.set_internal_rsense(False)
+
+            stepperMotorB.set_acceleration(2000)
+            stepperMotorB.set_max_speed(1500)
         print(steps, "| B motor steps")
         stepperMotorB.run_to_position_steps(steps)
         stepperMotorB.set_speed_fullstep (steps/2)
@@ -38,6 +61,7 @@ class MotorControl:
     @staticmethod
     def deltaB(delX, delY):
         return delX - delY
+
 
 class TMC_StepperMotor:
     def __init__(self, step_pin, dir_pin, en_pin):
@@ -486,8 +510,8 @@ class App:
             if dx != 0 or dy != 0:  # Only move if dx or dy have changed
                 #MotorControl.Amove(MotorControl.deltaA(dx, dy))
                 #MotorControl.Bmove(MotorControl.deltaB(dx, dy))
-                motorController.Amove(motorController.deltaA(dx, dy))
-                motorController.Bmove(motorController.deltaB(dx, dy))
+                motorController.Amove(motorController.deltaA(dx, dy), 5)
+                motorController.Bmove(motorController.deltaB(dx, dy), 5)
                 self.position_x, self.position_y = self.new_position_x, self.new_position_y
                 self.current_position.config(
                     text=f"current position: {self.position_x}, {self.position_y}", 
