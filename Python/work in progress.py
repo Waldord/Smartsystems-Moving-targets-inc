@@ -55,7 +55,7 @@ def cameraThread():
 # Processing Thread
 def processingThread():
     global latestFrame, stopThreads, tracker, primaryTargetLocked
-    confirmFrames = 10
+    confirmFrames = 10 #Amount of frames used to confirm tracking
     detectHistory = []
     while not stopThreads:
         with frameLock:
@@ -75,7 +75,7 @@ def processingThread():
                 primaryBox = boxes[0]
                 detectHistory.append(primaryBox)
 
-                #
+                #If detection history contains more frames than neeeded for confirmation, delete them
                 if len(detectHistory) > confirmFrames:
                     detectHistory.pop(0)
                 
