@@ -114,6 +114,20 @@ def processingThread():
                 # Reset tracker if the target is lost
                 primaryTargetLocked = False
                 tracker = None
+                
+            #Get coordinates of the detected person
+            x, y, w, h = boxes[0]
+            personCenterX = x + w // 2
+            personCenterY = y + h // 2
+
+            #Convert coordinates to servo angles
+            panAngle = int(panMin + (personCenterX / frameWidth) * (panMax - panMin))
+            tiltAngle = int(tiltMin + (personCenterY / frameHeight) * (tiltMax - tiltMin))
+
+            #Move servos to position 
+            panServo.value = angleToServoPos(panAngle)
+            tiltServo.value = angleToServoPos(tiltAngle)
+            print(f"Pan: {panAngle}, Tilt: {tiltAngle}")
 
         # Display video
         cv2.imshow("Frame", frame)

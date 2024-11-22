@@ -7,7 +7,7 @@ from gpiozero import OutputDevice
 from threading import Thread
 import time
 
-# Stepper Motor Class
+# Stepper Motor Class//
 class StepperMotor:
     def __init__(self, step_pin, dir_pin, en_pin, steps_per_rev=200):
         # Define pins
