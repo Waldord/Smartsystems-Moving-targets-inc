@@ -34,7 +34,7 @@ class MotorControl:
             print(steps, "| A motor steps")
             stepperMotorA.set_speed_fullstep (steps/duration)
             stepperMotorA.run_to_position_steps(steps)
-            print(stepperMotorA.get_current_position)
+            print(stepperMotorA.get_current_position())
         
 
 
@@ -55,7 +55,7 @@ class MotorControl:
             print(steps, "| B motor steps")
             stepperMotorB.run_to_position_steps(steps)
             stepperMotorB.set_speed_fullstep (steps/2)
-            print(stepperMotorB.get_current_position)
+            print(stepperMotorB.get_current_position())
 
     @staticmethod
     def deltaA(delX, delY):
@@ -193,8 +193,8 @@ class App:
         self.previous_position_y = 0
 
         # Counter for position array
-        self.next_position_array_x = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-        self.next_position_array_y = [2, 4, 6 ,8 ,10 ,12, 14, 16, 18, 20]
+        self.next_position_array_x = [100, 200, 300, 400, 500, 600, 700, 800, 900, 1000]
+        self.next_position_array_y = [100, 200, 300 ,400 , 500 , 600, 700, 800, 900, 1000]
 
         # Thread event for synchronization
         self.position_event = threading.Event()
@@ -466,8 +466,8 @@ class App:
             if dx != 0 or dy != 0:  # Only move if dx or dy have changed
                 #MotorControl.Amove(MotorControl.deltaA(dx, dy))
                 #MotorControl.Bmove(MotorControl.deltaB(dx, dy))
-                motorController.Amove(motorController.deltaA(dx, dy), 5)
-                motorController.Bmove(motorController.deltaB(dx, dy), 5)
+                motorController.Amove(motorController.deltaA(dx, dy), 2)
+                motorController.Bmove(motorController.deltaB(dx, dy), 2)
                 self.position_x, self.position_y = self.new_position_x, self.new_position_y
                 self.current_position.config(
                     text=f"current position: {self.position_x}, {self.position_y}", 
@@ -491,8 +491,8 @@ class App:
             if dx != 0 or dy != 0:  # Only move if dx or dy have changed
                 #MotorControl.Amove(MotorControl.deltaA(dx, dy))
                 #MotorControl.Bmove(MotorControl.deltaB(dx, dy))
-                motorController.Amove(motorController.deltaA(dx, dy), 5)
-                motorController.Bmove(motorController.deltaB(dx, dy), 5)
+                motorController.Amove(motorController.deltaA(dx, dy), 2)
+                motorController.Bmove(motorController.deltaB(dx, dy), 2)
                 self.position_x, self.position_y = self.new_position_x, self.new_position_y
                 self.current_position.config(
                 text=f"current position: {self.position_x}, {self.position_y}", 
@@ -513,8 +513,8 @@ class App:
             if dx != 0 or dy != 0:  # Only move if dx or dy have changed
                 #MotorControl.Amove(MotorControl.deltaA(dx, dy))
                 #MotorControl.Bmove(MotorControl.deltaB(dx, dy))
-                motorController.Amove(motorController.deltaA(dx, dy), 5)
-                motorController.Bmove(motorController.deltaB(dx, dy), 5)
+                motorController.Amove(motorController.deltaA(dx, dy), 2)
+                motorController.Bmove(motorController.deltaB(dx, dy), 2)
                 self.position_x, self.position_y = self.new_position_x, self.new_position_y
                 self.current_position.config(
                     text=f"current position: {self.position_x}, {self.position_y}", 
