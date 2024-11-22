@@ -1,0 +1,21 @@
+from TMC_2209.TMC_2209_StepperDriver import *
+tmc = TMC_2209(21, 16, 20, serialport="/dev/ttyAMA0", driver_address=0)
+tmc2 = TMC_2209(25, 23, 24, serialport="/dev/ttyAMA3", driver_address=0)
+
+
+tmc.set_direction_reg(False)
+tmc.set_current(300)
+tmc.set_interpolation(True)
+tmc.set_spreadcycle(False)
+tmc.set_microstepping_resolution(2)
+tmc.set_internal_rsense(False)
+
+tmc.set_acceleration(2000)
+tmc.set_max_speed(500)
+
+tmc.set_motor_enabled(True)
+
+tmc.run_to_position_steps(400)
+tmc.run_to_position_steps(0)
+
+tmc.set_motor_enabled(False)
