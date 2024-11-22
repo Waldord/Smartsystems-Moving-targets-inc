@@ -625,5 +625,5 @@ if __name__ == "__main__":
     #steppercontroller2 = StepperMotor(25, 23, 24)
     stepperMotorA = TMC_2209(21, 16, 20, serialport="/dev/ttyAMA0", driver_address=0)
     stepperMotorB = TMC_2209(25, 23, 24, serialport="/dev/ttyAMA3", driver_address=1)
-    motorController = MotorControl(stepperMotorA, stepperMotorB)
+    motorController = MotorControl()
     root.mainloop()
