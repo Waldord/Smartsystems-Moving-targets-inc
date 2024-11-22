@@ -463,8 +463,8 @@ class App:
             if dx != 0 or dy != 0:  # Only move if dx or dy have changed
                 #MotorControl.Amove(MotorControl.deltaA(dx, dy))
                 #MotorControl.Bmove(MotorControl.deltaB(dx, dy))
-                motorController.Amove(motorController.deltaA(dx, dy))
-                motorController.Bmove(motorController.deltaB(dx, dy))
+                motorController.Amove(motorController.deltaA(dx, dy), 5)
+                motorController.Bmove(motorController.deltaB(dx, dy), 5)
                 self.position_x, self.position_y = self.new_position_x, self.new_position_y
                 self.current_position.config(
                     text=f"current position: {self.position_x}, {self.position_y}", 
@@ -488,8 +488,8 @@ class App:
             if dx != 0 or dy != 0:  # Only move if dx or dy have changed
                 #MotorControl.Amove(MotorControl.deltaA(dx, dy))
                 #MotorControl.Bmove(MotorControl.deltaB(dx, dy))
-                motorController.Amove(motorController.deltaA(dx, dy))
-                motorController.Bmove(motorController.deltaB(dx, dy))
+                motorController.Amove(motorController.deltaA(dx, dy), 5)
+                motorController.Bmove(motorController.deltaB(dx, dy), 5)
                 self.position_x, self.position_y = self.new_position_x, self.new_position_y
                 self.current_position.config(
                 text=f"current position: {self.position_x}, {self.position_y}", 
