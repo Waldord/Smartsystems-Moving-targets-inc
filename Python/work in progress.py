@@ -4,6 +4,7 @@ import cv2
 import threading
 from gpiozero import Servo
 from time import sleep
+import time
 
 #Initialize servos to GPIO pins
 panServo = Servo(17)
@@ -54,12 +55,15 @@ def cameraThread():
 # Processing Thread
 def processingThread():
     global latestFrame, stopThreads, tracker, primaryTargetLocked
+    confirmFrames = 10
+    detectHistory = []
     while not stopThreads:
         with frameLock:
             if latestFrame is None:
                 continue
             frame = latestFrame.copy()
 
+        #HOG only runs if tracker is not active
         if not primaryTargetLocked:
             # Convert frame to grayscale (optional for performance)
             grayscale = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
@@ -69,17 +73,34 @@ def processingThread():
             if len(boxes) > 0:
                 # Select one target, e.g., the first detected person
                 primaryBox = boxes[0]
+                detectHistory.append(primaryBox)
 
-                # Initialize the tracker
-                tracker = cv2.TrackerCSRT_create()
-                tracker.init(frame, tuple(primaryBox))
+                #
+                if len(detectHistory) > confirmFrames:
+                    detectHistory.pop(0)
+                
+                #Check that the marked target stays consistent trough several frames
+                if len(detectHistory) == confirmFrames and all(
+                    abs(detectHistory[0][0] - box[0]) < 10 and
+                    abs(detectHistory[0][1] - box[1]) < 10 and
+                    abs(detectHistory[0][2] - box[2]) < 10 and
+                    abs(detectHistory[0][3] - box[3]) < 10
+                    for box in detectHistory
+                ):
+                    time.sleep(2)
 
-                # Lock on the target
-                primaryTargetLocked = True
+                    # Initialize the tracker
+                    tracker = cv2.TrackerCSRT_create()
+                    tracker.init(frame, tuple(primaryBox))
 
-                # Draw rectangle around the person
-                x, y, w, h = primaryBox
-                cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
+                    # Lock on the target
+                    primaryTargetLocked = True
+                    #Once target is found, detection is no longer necessary
+                    detectHistory.clear()
+
+                    # Draw rectangle around the person
+                    x, y, w, h = primaryBox
+                    cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
 
         else:
             # Make the tracker follow the primary target
@@ -101,7 +122,6 @@ def processingThread():
             break
 
         
-
 #Start the threads
 cameraT = threading.Thread(target = cameraThread, daemon = True)
 processingT = threading.Thread(target = processingThread, daemon = True)
