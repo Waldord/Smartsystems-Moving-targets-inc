@@ -13,16 +13,23 @@ from TMC_2209.TMC_2209_StepperDriver import *
 from time import sleep
 
 class MotorControl:
+    def __init__(self, motor_a, motor_b):
+        self.motor_a = motor_a
+        self.motor_b = motor_b
+
     @staticmethod
-    def Amove(z):
-        print(z, "| A motor steps")
-        tmc.run_to_position_steps(z)
+    def Amove(steps):
+        print(steps, "| A motor steps")
+        
+        stepperMotorA.run_to_position_steps(steps)
+        stepperMotorA.set_speed_fullstep (steps/2)
 
 
     @staticmethod
-    def Bmove(z):
-        print(z, "| B motor steps")
-        tmc2.run_to_position_steps(z)
+    def Bmove(steps):
+        print(steps, "| B motor steps")
+        stepperMotorB.run_to_position_steps(steps)
+        stepperMotorB.set_speed_fullstep (steps/2)
 
     @staticmethod
     def deltaA(delX, delY):
@@ -33,16 +40,26 @@ class MotorControl:
         return delX - delY
 
 class TMC_StepperMotor:
-    def __init__(self, step_pin, dir_pin, en_pin, serialport="/dev/ttyAMA0", driver_address=0):
-        tmc.set_direction_reg(False)
-        tmc.set_current(300)
-        tmc.set_interpolation(True)
-        tmc.set_spreadcycle(False)
-        tmc.set_microstepping_resolution(2)
-        tmc.set_internal_rsense(False)
+    def __init__(self, step_pin, dir_pin, en_pin):
+        self.tmc = TMC_2209(step_pin, dir_pin, en_pin, serialport="/dev/ttyAMA0", driver_address=0)
+        self.tmc.set_direction_reg(False)
+        self.tmc.set_current(300)
+        self.tmc.set_interpolation(True)
+        self.tmc.set_spreadcycle(False)
+        self.tmc.set_microstepping_resolution(2)
+        self.tmc.set_internal_rsense(False)
 
-        tmc.set_acceleration(2000)
-        tmc.set_max_speed(500)
+        self.tmc.set_acceleration(2000)
+        self.tmc.set_max_speed(500)
+        
+    def run_to_position_steps(self, steps):
+        self.tmc.run_to_position_steps(steps)
+
+    def run_to_position_fullsteps(self, speed):
+        self.tmc.set_speed_fullstep(speed)
+
+
+        
 
 
 class StepperMotor:
@@ -125,7 +142,7 @@ class App:
     def __init__(self, root):
         # Initialization of root window
         self.root = root
-        self.root.geometry("1500x1000")
+        self.root.geometry("800x600")
         self.root.configure(bg="Gray30")
         self.root.title("Moving Targets Inc.")
         self.start_time = time.time()
@@ -420,8 +437,10 @@ class App:
             dy = self.new_position_y - self.position_y
             print(self.position_counter)
             if dx != 0 or dy != 0:  # Only move if dx or dy have changed
-                MotorControl.Amove(MotorControl.deltaA(dx, dy))
-                MotorControl.Bmove(MotorControl.deltaB(dx, dy))
+                #MotorControl.Amove(MotorControl.deltaA(dx, dy))
+                #MotorControl.Bmove(MotorControl.deltaB(dx, dy))
+                motorController.Amove(motorController.deltaA(dx, dy))
+                motorController.Bmove(motorController.deltaB(dx, dy))
                 self.position_x, self.position_y = self.new_position_x, self.new_position_y
                 self.current_position.config(
                     text=f"current position: {self.position_x}, {self.position_y}", 
@@ -443,8 +462,10 @@ class App:
             dy = self.new_position_y - self.position_y
 
             if dx != 0 or dy != 0:  # Only move if dx or dy have changed
-                MotorControl.Amove(MotorControl.deltaA(dx, dy))
-                MotorControl.Bmove(MotorControl.deltaB(dx, dy))
+                #MotorControl.Amove(MotorControl.deltaA(dx, dy))
+                #MotorControl.Bmove(MotorControl.deltaB(dx, dy))
+                motorController.Amove(motorController.deltaA(dx, dy))
+                motorController.Bmove(motorController.deltaB(dx, dy))
                 self.position_x, self.position_y = self.new_position_x, self.new_position_y
                 self.current_position.config(
                 text=f"current position: {self.position_x}, {self.position_y}", 
@@ -463,8 +484,10 @@ class App:
             dx = self.new_position_x - self.position_x
             dy = self.new_position_y - self.position_y
             if dx != 0 or dy != 0:  # Only move if dx or dy have changed
-                MotorControl.Amove(MotorControl.deltaA(dx, dy))
-                MotorControl.Bmove(MotorControl.deltaB(dx, dy))
+                #MotorControl.Amove(MotorControl.deltaA(dx, dy))
+                #MotorControl.Bmove(MotorControl.deltaB(dx, dy))
+                motorController.Amove(motorController.deltaA(dx, dy))
+                motorController.Bmove(motorController.deltaB(dx, dy))
                 self.position_x, self.position_y = self.new_position_x, self.new_position_y
                 self.current_position.config(
                     text=f"current position: {self.position_x}, {self.position_y}", 
@@ -487,8 +510,8 @@ class App:
 
     def game_finished(self):
         self.running = False
-        tmc.set_motor_enabled(False)
-        tmc2.set_motor_enabled(False)
+        stepperMotorA.set_motor_enabled(False)
+        stepperMotorB.set_motor_enabled(False)
         if self.clock_counter <= 0 and self.entered_username_flag == False:
             self.entered_username_flag = True
             name = simpledialog.askstring("Game Over", "Enter your name for the high score list:")
@@ -516,8 +539,8 @@ class App:
 
     def normal_start(self):
         self.normal_gameflag = True
-        tmc.set_motor_enabled(True)
-        tmc2.set_motor_enabled(True)
+        stepperMotorA.set_motor_enabled(True)
+        stepperMotorB.set_motor_enabled(True)
         self.clock_counter = 60
 
         
@@ -536,8 +559,8 @@ class App:
 
     def random_start(self):
         self.random_gameflag = True
-        tmc.set_motor_enabled(True)
-        tmc2.set_motor_enabled(True)
+        stepperMotorA.set_motor_enabled(True)
+        stepperMotorB.set_motor_enabled(True)
         self.clock_counter = 60
 
         self.update_clock()
@@ -553,8 +576,8 @@ class App:
 
     def text_box_start(self):
         self.text_box_gameflag = True
-        tmc.set_motor_enabled(True)
-        tmc2.set_motor_enabled(True)
+        stepperMotorA.set_motor_enabled(True)
+        stepperMotorB.set_motor_enabled(True)
         #self.update_clock()
         #self.video_stream()
         self.grid_remover()
@@ -576,6 +599,7 @@ if __name__ == "__main__":
     # StepperMotor(step_pin, dir_pin, en_pin) uart
     #steppercontroller1 = StepperMotor(21, 16, 20)
     #steppercontroller2 = StepperMotor(25, 23, 24)
-    tmc = TMC_2209(21, 16, 20, serialport="/dev/ttyAMA0", driver_address=0)
-    tmc2 = TMC_2209(25, 23, 24, serialport="/dev/ttyAMA3", driver_address=0)
+    stepperMotorA = TMC_2209(21, 16, 20, serialport="/dev/ttyAMA0", driver_address=0)
+    stepperMotorB = TMC_2209(25, 23, 24, serialport="/dev/ttyAMA3", driver_address=0)
+    motorController = MotorControl(stepperMotorA, stepperMotorB)
     root.mainloop()

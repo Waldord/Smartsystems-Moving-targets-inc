@@ -551,7 +551,7 @@ if __name__ == "__main__":
 
     app = App(root)
     # Pin 17 og 18 til servo
-    # StepperMotor(step_pin, dir_pin, en_pin)
+    # StepperMotor(step_pin, dir_pin, en_pin) uart
     steppercontroller1 = StepperMotor(21, 16, 20)
     steppercontroller2 = StepperMotor(25, 23, 24)
     root.mainloop()
