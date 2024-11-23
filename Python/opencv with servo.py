@@ -1,4 +1,12 @@
-"""Made by Eirik, the one and only"""
+"""This code uses the openCV library to control servo movements"""
+"""The HOG descriptor is used to recognize humans in the frames provided by the camera"""
+"""Once the descriptor has identified the player, a CRST tracker takes over to reduce load on RPI"""
+"""The player is then tracked with a blue rectangle around their body profile"""
+"""A function finds the middle point of this rectangle"""
+"""This center point is converted to coordinates of a grid system"""
+"""These coordinates are then converted to servo angles"""
+"""The servos will then follow the center point around when the player moves"""
+"""Made by Eirik"""
 
 import cv2
 import threading
@@ -172,5 +180,4 @@ finally:
 # People Detection: https://www.youtube.com/watch?v=zyKam8pNjJ4
 # People Detection: https://www.youtube.com/watch?v=cvGEWBO0Vho
 # Threads: https://www.youtube.com/watch?v=IEEhzQoKtQU
-# OpenCV CSRT Tracker: https://stackoverflow.com/questions/65545311/how-to-use-the-csrt-tracker-correctly-to-track-objects-in-opencv
-# 
+# OpenCV CSRT Tracker: https://stackoverflow.com/questions/65545311/how-to-use-the-csrt-tracker-correctly-to-track-objects-in-opencv 
