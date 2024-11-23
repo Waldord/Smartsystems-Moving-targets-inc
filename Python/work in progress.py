@@ -2,23 +2,30 @@
 
 import cv2
 import threading
-from gpiozero import Servo
 from time import sleep
+from adafruit_servokit import ServoKit
 import time
+from math import floor
 
 #Initialize servos to GPIO pins
-panServo = Servo(17)
-tiltServo = Servo(18)
+kit = ServoKit(channels=16)
+kit.servo[0].actuation_range = 90
+kit.servo[1].actuation_range = 90
+kit.servo[0].angle = 55
+kit.servo[1].angle = 45
+
 
 #Servo angle constraints
-panMin, panMax = 0, 180
-tiltMin, tiltMax = 0, 180
+panMin, panMax = 0, 90
+tiltMin, tiltMax = 40, 65
+
+oldValueX = 0
+oldValueY = 0
 
 #Map angle to servo position
 #Angle = 0-180, Position = -1 to +1
 def angleToServoPos(angle):
-    return (angle / 180) * 2 - 1
-
+    return (angle - 1)
 #Camera settings
 frameWidth, frameHeight = 640, 480
 latestFrame = None
@@ -54,7 +61,7 @@ def cameraThread():
 
 # Processing Thread
 def processingThread():
-    global latestFrame, stopThreads, tracker, primaryTargetLocked
+    global latestFrame, stopThreads, tracker, primaryTargetLocked, oldValueY, oldValueX
     confirmFrames = 10 #Amount of frames used to confirm tracking
     detectHistory = []
     while not stopThreads:
@@ -105,11 +112,12 @@ def processingThread():
         else:
             # Make the tracker follow the primary target
             success, box = tracker.update(frame)
-
+            
             if success:
                 x, y, w, h = map(int, box)
                 # Draw a rectangle on the person when in tracking mode
                 cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 0, 0), 2)
+                
             else:
                 # Reset tracker if the target is lost
                 primaryTargetLocked = False
@@ -117,16 +125,16 @@ def processingThread():
                 
             #Get coordinates of the detected person
             x, y, w, h = boxes[0]
-            personCenterX = x + w // 2
-            personCenterY = y + h // 2
-
+            personCenterX = box[0] + w // 2
+            personCenterY = box[1] + h // 2
+            
             #Convert coordinates to servo angles
-            panAngle = int(panMin + (personCenterX / frameWidth) * (panMax - panMin))
-            tiltAngle = int(tiltMin + (personCenterY / frameHeight) * (tiltMax - tiltMin))
-
+            panAngle = 90-int(panMin + (personCenterX / frameWidth) * (panMax - panMin))
+            tiltAngle = 90-int(tiltMin + (personCenterY / frameHeight) * (tiltMax - tiltMin))
+            
             #Move servos to position 
-            panServo.value = angleToServoPos(panAngle)
-            tiltServo.value = angleToServoPos(tiltAngle)
+            kit.servo[1].angle = (floor(angleToServoPos(panAngle)))
+            kit.servo[0].angle = (floor(angleToServoPos(tiltAngle)))
             print(f"Pan: {panAngle}, Tilt: {tiltAngle}")
 
         # Display video
@@ -155,8 +163,6 @@ finally:
     videocapture.release()
     cv2.destroyAllWindows()
     print("Program stopped!")
-
-
 
 #Coding Sources
 # HOG Descriptor: https://medium.com/@dnemutlu/hog-feature-descriptor-263313c3b40d
