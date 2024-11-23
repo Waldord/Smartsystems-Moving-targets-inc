@@ -8,6 +8,7 @@ from PIL import ImageTk, Image
 import cv2
 import sys
 from gpiozero import Servo, OutputDevice
+from TMC_2209.TMC_2209_StepperDriver import *
 
 from time import sleep
 
@@ -552,6 +553,6 @@ if __name__ == "__main__":
     app = App(root)
     # Pin 17 og 18 til servo
     # StepperMotor(step_pin, dir_pin, en_pin) uart
-    steppercontroller1 = StepperMotor(21, 16, 20)
+    steppercontroller1 = StepperMotor(21, 16, 20, )
     steppercontroller2 = StepperMotor(25, 23, 24)
     root.mainloop()
