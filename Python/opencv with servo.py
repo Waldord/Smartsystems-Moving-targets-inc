@@ -6,6 +6,8 @@
 """This center point is converted to coordinates of a grid system"""
 """These coordinates are then converted to servo angles"""
 """The servos will then follow the center point around when the player moves"""
+"""The code runs the camera operation and detection operation on two threads"""
+"""This is done to optimize performance on the RPI's limited resources"""
 """Made by Eirik"""
 
 import cv2
