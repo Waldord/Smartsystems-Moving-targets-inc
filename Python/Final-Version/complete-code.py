@@ -22,7 +22,6 @@ kit.servo[1].actuation_range = 90
 kit.servo[0].angle = 55
 kit.servo[1].angle = 45
 
-
 #Servo angle constraints
 panMin, panMax = 0, 90
 tiltMin, tiltMax = 40, 65
@@ -79,9 +78,6 @@ class MotorControl:
             stepperMotorA.run_to_position_steps(steps)
             print(stepperMotorA.get_current_position())
         
-
-
-    
     def Bmove(self, steps, duration=None):            
         if self.bFlag is False:
             self.bFlag = True
@@ -108,7 +104,6 @@ class MotorControl:
     def deltaB(delX, delY):
         return delX - delY
 
-
 class TMC_StepperMotor:
     def __init__(self, step_pin, dir_pin, en_pin):
         self.tmc = TMC_2209(step_pin, dir_pin, en_pin, serialport="/dev/ttyAMA0", driver_address=0)
@@ -127,10 +122,6 @@ class TMC_StepperMotor:
 
     def run_to_position_fullsteps(self, speed):
         self.tmc.set_speed_fullstep(speed)
-
-
-        
-
 
 class StepperMotor:
     def __init__(self, step_pin, dir_pin, en_pin, steps_per_rev=200):
@@ -194,7 +185,6 @@ class StepperMotor:
         if hasattr(self, 'thread'):
             self.thread.join()
 
-
 class Sensor:
     # Assigns GPIO pin 27 to infrared detector
     IR_PIN = 27
@@ -206,7 +196,6 @@ class Sensor:
         x = np.random.randint(0, 3)
         time.sleep(0.1)
         return x == 1
-
 
 class App:
     def __init__(self, root):
@@ -258,7 +247,6 @@ class App:
         self.t1 = None
         self.t2 = None
         self.t3 = None
-
 
     def create_widgets(self):
 
@@ -372,7 +360,6 @@ class App:
             font=("Arial", 14), 
             command=self.send_text_field)
         self.text_field_button.grid(row=3, column=0, sticky=NW)
-
 
         # Camera frame text
         self.app_frame = LabelFrame(
