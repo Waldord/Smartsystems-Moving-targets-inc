@@ -35,10 +35,10 @@ class IR_sensor:
         print("")
         self.mqttc.loop_forever()
         
-    def on_connect(self,client, userdata = None, flags = None, reason_code, properties = None):
+    def on_connect(self,client, reason_code):
         print(f"Connected with result code {reason_code}")
         client.subscribe(self.topic)
-    def on_message(self,client = None, userdata = None, msg):
+    def on_message(self, msg):
         if(str(msg.payload)=="b'Hit Registered'"):
             app.update_score()
             print("Hit is registered") # Use this if statement to add a hit/point
