@@ -31,19 +31,21 @@ class IR_sensor:
         self.userdata
         self.mqttc = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2)
         self.mqttc.on_connect = on_connect()
-        self.mqttc.on_message = on_message()
+        #self.mqttc.on_message = on_message()
         self.mqttc.connect("broker.hivemq.com", 1883, 60)
         self.mqttc.loop_forever()
         
-    def on_connect(client, userdata, flags, reason_code, properties):
+    def on_connect(self,client, userdata, flags, reason_code, properties):
         print(f"Connected with result code {reason_code}")
         client.subscribe(self.topic)
     def on_message(client, userdata, msg):
-        while app.clock_counter > 0: 
-            if(str(msg.payload)=="b'Hit Registered'"):
-                app.update_score()
-                print("Hit is registered") # Use this if statement to add a hit/point
-
+        if(str(msg.payload)=="b'Hit Registered'"):
+            app.update_score()
+            print("Hit is registered") # Use this if statement to add a hit/point
+    def sensor(self):
+        while app.clock_counter > 0:
+            self.mqttc.on_message = on_message()
+            
 
 
 class ComputerVision:
@@ -610,7 +612,7 @@ class App:
         self.t2 = threading.Thread(target=self.update_score, daemon=True)
         self.t3 = threading.Thread(target=self.move_motorA, daemon=True)
         self.t4 = threading.Thread(target=self.move_motorB, daemon=True)
-        self.t5 = threading.Thread(target=IR_sensor.on_message, daemon=True)
+        self.t5 = threading.Thread(target=IR_sensor.sensor, daemon=True)
         
         self.t1.start()
         self.t2.start()
@@ -633,7 +635,7 @@ class App:
         t2 = threading.Thread(target=self.update_score, daemon=True)
         self.t3 = threading.Thread(target=self.move_motorA, daemon=True)
         self.t4 = threading.Thread(target=self.move_motorB, daemon=True)
-        self.t5 = threading.Thread(target=IR_sensor.on_message, daemon=True)
+        self.t5 = threading.Thread(target=IR_sensor.sensor, daemon=True)
         
         t1.start()
         t2.start()
