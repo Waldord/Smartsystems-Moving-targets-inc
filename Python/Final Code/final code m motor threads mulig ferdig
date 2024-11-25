@@ -87,7 +87,7 @@ class MotorControl:
             stepperMotorA.set_max_speed(1500)
 
         if duration is not None:
-            print(steps, "| A motor steps")
+            print(steps, "| A motor steps  ||  ", "current position A = ", currentposA)
             stepperMotorA.set_speed_fullstep (steps)
             stepperMotorA.run_to_position_steps(steps + self.currentposA)
             print(stepperMotorA.get_current_position())
@@ -106,7 +106,7 @@ class MotorControl:
             stepperMotorB.set_acceleration(2000)
             stepperMotorB.set_max_speed(1500)
         if duration is not None:
-            print(steps, "| B motor steps")
+            print(steps, "| B motor steps", "current position B = ", currentposB)
             stepperMotorB.set_speed_fullstep (steps)
             stepperMotorB.run_to_position_steps(steps + self.currentposB)
             print(stepperMotorB.get_current_position())
@@ -500,7 +500,7 @@ class App:
         self.stop_button.grid(row=4, column=0, sticky=NW)
 
     def normal_game_mode(self):
-        self.next_update_interval = 2
+        self.next_update_interval = 4
 
         while self.clock_counter > 0:  # Keep running unless you have a stopping condition
 
@@ -528,7 +528,7 @@ class App:
             time.sleep(self.next_update_interval)
                 
     def random_game_mode(self):
-        self.next_update_interval = 2
+        self.next_update_interval = 4
         while self.clock_counter > 0:  
             self.next_update = time.time()+self.next_update_interval
             # Generate random numbers between 0, 40 for x and y positions
