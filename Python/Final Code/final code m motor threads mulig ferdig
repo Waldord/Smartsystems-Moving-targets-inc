@@ -550,17 +550,15 @@ class App:
     def move_motorA(self):
         time.sleep(0.2) 
         while self.clock_counter > 0:
-            if dx != 0 or dy != 0:  # Only move if dx or dy have changed
-                motorController.Amove(motorController.deltaA(dx, dy), 2)
-                print("motor A threading works")
-                time.sleep(self.next_update_interval)
+            motorController.Amove(motorController.deltaA(dx, dy), 2)
+            print("motor A threading works")
+            time.sleep(self.next_update_interval)
     def move_motorB(self):
         time.sleep(0.2)
         while self.clock_counter > 0:
-            if dx != 0 or dy != 0:
-                motorController.Bmove(motorController.deltaB(dx, dy), 2)
-                print("motor B threading works")
-                time.sleep(self.next_update_interval)
+            motorController.Bmove(motorController.deltaB(dx, dy), 2)
+            print("motor B threading works")
+            time.sleep(self.next_update_interval)
         
         
 
