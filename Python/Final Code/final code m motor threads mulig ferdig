@@ -262,6 +262,10 @@ class App:
         self.t1 = None
         self.t2 = None
         self.t3 = None
+        self.t4 = None
+        
+        self.dx
+        self.dy
 
     def create_widgets(self):
 
