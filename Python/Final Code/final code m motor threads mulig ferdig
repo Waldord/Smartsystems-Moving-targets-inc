@@ -21,6 +21,27 @@ from TMC_2209.TMC_2209_StepperDriver import *
 from time import sleep
 from adafruit_servokit import ServoKit
 from math import floor
+import paho.mqtt.client as mqtt
+
+class IR_sensor(self):
+    def __init__(self): 
+        self.point_counter
+        self.topic = "MovingTargetsSmartSystems"
+        
+    def on_connect(client, userdata, flags, reason_code, properties):
+        print(f"Connected with result code {reason_code}")
+        client.subscribe(self.topic)
+    def on_message(client, userdata, msg):
+        while app.clock_counter > 0: 
+            if(str(msg.payload)=="b'Hit Registered'"):
+                app.update_score()
+                print("Hit is registered") # Use this if statement to add a hit/point
+            mqttc = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2)
+            mqttc.on_connect = on_connect
+            mqttc.on_message = on_message
+            mqttc.connect("broker.hivemq.com", 1883, 60)
+            mqttc.loop_forever()
+
 
 
 class ComputerVision:
@@ -140,7 +161,7 @@ class TMC_StepperMotor:
 
 
 
-
+"""
 class Sensor:
     # Assigns GPIO pin 27 to infrared detector
     IR_PIN = 27
@@ -152,7 +173,7 @@ class Sensor:
         x = np.random.randint(0, 3)
         time.sleep(0.1)
         return x == 1
-
+"""
 class App:
     def __init__(self, root):
         # Initialization of root window
@@ -421,11 +442,9 @@ class App:
             self.game_finished()
 
     def update_score(self):
-        while self.clock_counter > 0:
-            if Sensor.read():
-                self.counter += 1
-                self.score_label.config(text=f"{self.counter} pts")
-                time.sleep(1) 
+        self.counter += 1
+        self.score_label.config(text=f"{self.counter} pts")
+        time.sleep(1) 
                 #tid mellom hver gang du kan få poeng, så du ikke kan spamme. LOCKOUT funksjon
                 #funker dårlig med random, men kommer nok til å funke med sensor
 
@@ -589,11 +608,13 @@ class App:
         self.t2 = threading.Thread(target=self.update_score, daemon=True)
         self.t3 = threading.Thread(target=self.move_motorA, daemon=True)
         self.t4 = threading.Thread(target=self.move_motorB, daemon=True)
-
+        self.t5 = threading.Thread(target=IR_sensor.on_message, daemon=True)
+        
         self.t1.start()
         self.t2.start()
         self.t3.start()
         self.t4.start()
+        self.t5.start()
 
     def random_start(self):
         self.random_gameflag = True
@@ -610,11 +631,13 @@ class App:
         t2 = threading.Thread(target=self.update_score, daemon=True)
         self.t3 = threading.Thread(target=self.move_motorA, daemon=True)
         self.t4 = threading.Thread(target=self.move_motorB, daemon=True)
+        self.t5 = threading.Thread(target=IR_sensor.on_message, daemon=True)
         
         t1.start()
         t2.start()
         self.t3.start()
         self.t4.start()
+        self.t5.start()
 
     def text_box_start(self):
         self.text_box_gameflag = True
