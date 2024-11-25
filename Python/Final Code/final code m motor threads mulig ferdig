@@ -509,10 +509,10 @@ class App:
             self.new_position_x = self.next_position_array_x[self.position_counter]
             self.new_position_y = self.next_position_array_y[self.position_counter]
 
-            dx = self.new_position_x - self.position_x
-            dy = self.new_position_y - self.position_y
+            self.dx = self.new_position_x - self.position_x
+            self.dy = self.new_position_y - self.position_y
             print(self.position_counter)
-            if dx != 0 or dy != 0:  # Only move if dx or dy have changed
+            if self.dx != 0 or self.dy != 0:  # Only move if dx or dy have changed
                 #MotorControl.Amove(MotorControl.deltaA(dx, dy))
                 #MotorControl.Bmove(MotorControl.deltaB(dx, dy))
                 #motorController.Amove(motorController.deltaA(dx, dy), 2)
@@ -534,10 +534,10 @@ class App:
             # Generate random numbers between 0, 40 for x and y positions
             self.new_position_x = np.random.randint(0,40)
             self.new_position_y = np.random.randint(0,40)                
-            dx = self.new_position_x - self.position_x
-            dy = self.new_position_y - self.position_y
+            self.dx = self.new_position_x - self.position_x
+            self.dy = self.new_position_y - self.position_y
 
-            if dx != 0 or dy != 0:  # Only move if dx or dy have changed
+            if self.dx != 0 or self.dy != 0:  # Only move if dx or dy have changed
                 #MotorControl.Amove(MotorControl.deltaA(dx, dy))
                 #MotorControl.Bmove(MotorControl.deltaB(dx, dy))
                 #motorController.Amove(motorController.deltaA(dx, dy), 2)
@@ -554,13 +554,13 @@ class App:
     def move_motorA(self):
         time.sleep(0.2) 
         while self.clock_counter > 0:
-            motorController.Amove(motorController.deltaA(dx, dy), 2)
+            motorController.Amove(motorController.deltaA(self.dx, self.dy), 2)
             print("motor A threading works")
             time.sleep(self.next_update_interval)
     def move_motorB(self):
         time.sleep(0.2)
         while self.clock_counter > 0:
-            motorController.Bmove(motorController.deltaB(dx, dy), 2)
+            motorController.Bmove(motorController.deltaB(self.dx, self.dy), 2)
             print("motor B threading works")
             time.sleep(self.next_update_interval)
         
@@ -576,8 +576,8 @@ class App:
             if dx != 0 or dy != 0:  # Only move if dx or dy have changed
                 #MotorControl.Amove(MotorControl.deltaA(dx, dy))
                 #MotorControl.Bmove(MotorControl.deltaB(dx, dy))
-                motorController.Amove(motorController.deltaA(dx, dy), 2)
-                motorController.Bmove(motorController.deltaB(dx, dy), 2)
+                motorController.Amove(motorController.deltaA(self.dx, self.dy), 2)
+                motorController.Bmove(motorController.deltaB(self.dx, self.dy), 2)
                 self.position_x, self.position_y = self.new_position_x, self.new_position_y
                 self.current_position.config(
                     text=f"current position: {self.position_x}, {self.position_y}", 
