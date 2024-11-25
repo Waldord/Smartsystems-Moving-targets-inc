@@ -25,7 +25,6 @@ import paho.mqtt.client as mqtt
 
 class IR_sensor:
     def __init__(self): 
-        self.point_counter
         self.topic = "MovingTargetsSmartSystems"
         self.client
         self.userdata
