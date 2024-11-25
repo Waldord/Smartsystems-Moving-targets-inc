@@ -27,43 +27,43 @@ class ComputerVision:
     def __init__(self):
         
         #Initialize servos to GPIO pins
-        kit = ServoKit(channels=16)
-        kit.servo[0].actuation_range = 90
-        kit.servo[1].actuation_range = 90
-        kit.servo[0].angle = 55
-        kit.servo[1].angle = 45
+        self.kit = ServoKit(channels=16)
+        self.kit.servo[0].actuation_range = 90
+        self.kit.servo[1].actuation_range = 90
+        self.kit.servo[0].angle = 55
+        self.kit.servo[1].angle = 45
 
         #Servo angle constraints
-        panMin, panMax = 0, 90
-        tiltMin, tiltMax = 40, 65
+        self.panMin, self.panMax = 0, 90
+        self.tiltMin, self.tiltMax = 40, 65
 
-        oldValueX = 0
-        oldValueY = 0
+        self.oldValueX = 0
+        self.oldValueY = 0
 
         #Map angle to servo position
         #Angle = 0-180, Position = -1 to +1
         def angleToServoPos(angle):
             return (angle - 1)
         #Camera settings
-        frameWidth, frameHeight = 640, 480
-        latestFrame = None
-        frameLock = threading.Lock()
+        self.frameWidth, frameHeight = 640, 480
+        self.latestFrame = None
+        self.frameLock = threading.Lock()
 
         #Initialize the camera
-        videocapture = cv2.VideoCapture(0)
-        videocapture.set(cv2.CAP_PROP_FRAME_WIDTH, frameWidth)
-        videocapture.set(cv2.CAP_PROP_FRAME_HEIGHT, frameHeight)
+        self.videocapture = cv2.VideoCapture(0)
+        self.videocapture.set(cv2.CAP_PROP_FRAME_WIDTH, frameWidth)
+        self.videocapture.set(cv2.CAP_PROP_FRAME_HEIGHT, frameHeight)
 
         #Load HOG Descriptor
-        hog = cv2.HOGDescriptor()
-        hog.setSVMDetector(cv2.HOGDescriptor_getDefaultPeopleDetector())
+        self.hog = cv2.HOGDescriptor()
+        self.hog.setSVMDetector(cv2.HOGDescriptor_getDefaultPeopleDetector())
 
         #Initialize tracker
-        tracker = None
-        primaryTargetLocked = False
+        self.tracker = None
+        self.primaryTargetLocked = False
 
         #Flag to control threads
-        stopThreads = False
+        self.stopThreads = False
 
 class MotorControl:    
     def __init__(self):
@@ -785,11 +785,11 @@ class ComputerVisionThreads:
                 break
     
     def __init__(self):#Start the threads for camera and frame processing
-        cameraT = threading.Thread(target = cameraThread, daemon = True)
-        processingT = threading.Thread(target = processingThread, daemon = True)
+        self.cameraT = threading.Thread(target = cameraThread, daemon = True)
+        self.processingT = threading.Thread(target = processingThread, daemon = True)
         
-        cameraT.start()
-        processingT.start()
+        self.cameraT.start()
+        self.processingT.start()
         
 #Wait for the threads to complete
 try:
