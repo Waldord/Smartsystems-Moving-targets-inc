@@ -24,7 +24,11 @@ from math import floor
 import paho.mqtt.client as mqtt
 
 class IR_sensor:
-    def sensorThread(self): 
+    def __init__(self):
+        return
+        
+        
+    def sensorThread(): 
         self.topic = "MovingTargetsSmartSystems"
         self.mqttc = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2)
         self.mqttc.on_connect = self.on_connect
@@ -801,7 +805,7 @@ class ComputerVisionThreads:
 
 if __name__ == "__main__":
     root = Tk()
-    IRsensor = IR_sensor.sensorThread(self)
+    IRsensor = IR_sensor.sensorThread()
     
     app = App(root)
 
