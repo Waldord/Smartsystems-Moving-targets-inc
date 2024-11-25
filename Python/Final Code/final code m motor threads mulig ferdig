@@ -802,12 +802,13 @@ class ComputerVisionThreads:
 
 if __name__ == "__main__":
     root = Tk()
-    IRsensor = IR_sensor()
+ 
     app = App(root)
 
     stepperMotorA = TMC_2209(21, 16, 20, serialport="/dev/ttyAMA0", driver_address=0)
     stepperMotorB = TMC_2209(25, 23, 24, serialport="/dev/ttyAMA3", driver_address=1)
     motorController = MotorControl()
+    IRsensor = IR_sensor()
     root.mainloop()
     
     
