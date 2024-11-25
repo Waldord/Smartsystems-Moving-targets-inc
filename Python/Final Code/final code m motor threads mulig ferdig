@@ -608,7 +608,7 @@ class App:
         self.t2 = threading.Thread(target=self.update_score, daemon=True)
         self.t3 = threading.Thread(target=self.move_motorA, daemon=True)
         self.t4 = threading.Thread(target=self.move_motorB, daemon=True)
-        self.t5 = threading.Thread(target=IR_sensor.sensorThread, daemon=True)
+        self.t5 = threading.Thread(target=IRsensor, daemon=True)
         
         self.t1.start()
         self.t2.start()
@@ -631,7 +631,7 @@ class App:
         t2 = threading.Thread(target=self.update_score, daemon=True)
         self.t3 = threading.Thread(target=self.move_motorA, daemon=True)
         self.t4 = threading.Thread(target=self.move_motorB, daemon=True)
-        self.t5 = threading.Thread(target=IR_sensor.sensorThread, daemon=True)
+        self.t5 = threading.Thread(target=IRsensor, daemon=True)
         
         t1.start()
         t2.start()
@@ -801,7 +801,7 @@ class ComputerVisionThreads:
 
 if __name__ == "__main__":
     root = Tk()
-    IRsensor = IR_sensor()
+    IRsensor = IR_sensor.sensorThread()
     
     app = App(root)
 
