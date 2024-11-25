@@ -25,26 +25,25 @@ import paho.mqtt.client as mqtt
 
 class IR_sensor:
     def __init__(self): 
+        self.point_counter
         self.topic = "MovingTargetsSmartSystems"
-        self.client = None
-        self.userdata = None
+        self.client
+        self.userdata
         self.mqttc = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2)
-        self.mqttc.on_connect = self.on_connect()
-        self.mqttc.on_message = self.on_message()
+        self.mqttc.on_connect = self.on_connect
+        self.mqttc.on_message = self.on_message
         self.mqttc.connect("broker.hivemq.com", 1883, 60)
         print("")
         self.mqttc.loop_forever()
         
-    def on_connect(self,client, reason_code):
+    def on_connect(self,client, userdata, flags, reason_code, properties):
         print(f"Connected with result code {reason_code}")
         client.subscribe(self.topic)
-    def on_message(self, msg):
+    def on_message(self,client, userdata, msg):
         if(str(msg.payload)=="b'Hit Registered'"):
             app.update_score()
             print("Hit is registered") # Use this if statement to add a hit/point
-    def sensor(self):
-        while app.clock_counter > 0:
-            self.mqttc.on_message = self.on_message()
+
             
 
 
