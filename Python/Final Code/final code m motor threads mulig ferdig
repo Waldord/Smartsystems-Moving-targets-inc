@@ -23,7 +23,7 @@ from adafruit_servokit import ServoKit
 from math import floor
 import paho.mqtt.client as mqtt
 
-class IR_sensor(self):
+class IR_sensor:
     def __init__(self): 
         self.point_counter
         self.topic = "MovingTargetsSmartSystems"
