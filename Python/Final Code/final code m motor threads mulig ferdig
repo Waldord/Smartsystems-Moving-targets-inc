@@ -499,13 +499,13 @@ class App:
     def move_motorA(self):
         time.sleep(0.05)
         while self.clock_counter > 0:
-            motorController.Amove(motorController.deltaA(self.dx, self.dy))
+            motorController.Amove(motorController.deltaA(self.dx, self.dy),4)
             print("motor A threading works")
             time.sleep(self.next_update_interval-self.next_update_interval_offset)
     def move_motorB(self):
         time.sleep(0.05)
         while self.clock_counter > 0:
-            motorController.Bmove(motorController.deltaB(self.dx, self.dy))
+            motorController.Bmove(motorController.deltaB(self.dx, self.dy), 4)
             print("motor B threading works")
             time.sleep(self.next_update_interval-self.next_update_interval_offset)
         
