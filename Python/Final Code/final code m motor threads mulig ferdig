@@ -801,7 +801,7 @@ class ComputerVisionThreads:
 
 if __name__ == "__main__":
     root = Tk()
-    IRsensor = IR_sensor.sensorThread()
+    IRsensor = IR_sensor.sensorThread(self)
     
     app = App(root)
 
