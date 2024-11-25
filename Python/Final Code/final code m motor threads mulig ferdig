@@ -87,7 +87,7 @@ class MotorControl:
             stepperMotorA.set_max_speed(1500)
 
         if duration is not None:
-            print(steps, "| A motor steps  ||  ", "current position A = ", currentposA)
+            print(steps, "| A motor steps  ||  ", "current position A = ", self.currentposA)
             stepperMotorA.set_speed_fullstep (steps)
             stepperMotorA.run_to_position_steps(steps + self.currentposA)
             print(stepperMotorA.get_current_position())
@@ -106,7 +106,7 @@ class MotorControl:
             stepperMotorB.set_acceleration(2000)
             stepperMotorB.set_max_speed(1500)
         if duration is not None:
-            print(steps, "| B motor steps", "current position B = ", currentposB)
+            print(steps, "| B motor steps", "current position B = ", self.currentposB)
             stepperMotorB.set_speed_fullstep (steps)
             stepperMotorB.run_to_position_steps(steps + self.currentposB)
             print(stepperMotorB.get_current_position())
