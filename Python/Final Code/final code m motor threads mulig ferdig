@@ -264,8 +264,8 @@ class App:
         self.t3 = None
         self.t4 = None
         
-        self.dx
-        self.dy
+        self.dx = 0
+        self.dy = 0
 
     def create_widgets(self):
 
