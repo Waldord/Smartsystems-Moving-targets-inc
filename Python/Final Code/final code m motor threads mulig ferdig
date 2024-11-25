@@ -689,16 +689,41 @@ class App:
 
 #Camera Thread
 class ComputerVisionThreads:
+    def __init__(self):
+        self.latestFrame
+        self.stopThreads
+        self.frame
+        self.ret
+        self.framelock
+        self.tracker
+        self.primaryTargetLocked
+        self.oldValueY
+        self.oldValueX
+        self.confirmFrames
+        self.detectHistory
+        self.grayscale
+        self.boxes
+        self._
+        self.x
+        self.y
+        self.w
+        self.h
+        self.personCenterX
+        self.personCenterY
+        self.panAngle
+        self.tiltAngle
+        self.kit_servo
+        
+        
     def cameraThread():
-        global latestFrame, stopThreads
         while not stopThreads:
-            ret, frame = videocapture.read()
-            if not ret:
+            self.ret, self.frame = videocapture.read()
+            if not self.ret:
                 print("Failed to capture")
                 break
             #Update latest frame with locking for thread safety
-            with frameLock:
-                latestFrame = frame.copy()
+            with self.frameLock:
+                self.latestFrame = self.frame.copy()
     
     # Processing Thread
     def processingThread():
@@ -792,17 +817,17 @@ class ComputerVisionThreads:
         self.processingT.start()
         
 #Wait for the threads to complete
-try:
-    while not stopThreads:
-        sleep(0.1) #Keeps main thread alive
-finally:
-    #Signal the threads to stop and release resources
-    stopThreads = True
-    cameraT.join()
-    processingT.join()
-    videocapture.release()
-    cv2.destroyAllWindows()
-    print("Program stopped!")
+        try:
+            while not stopThreads:
+                sleep(0.1) #Keeps main thread alive
+        finally:
+            #Signal the threads to stop and release resources
+            self.stopThreads = True
+            self.cameraT.join()
+            self.processingT.join()
+            self.videocapture.release()
+            self.cv2.destroyAllWindows()
+            self.print("Program stopped!")
 
 if __name__ == "__main__":
     root = Tk()
