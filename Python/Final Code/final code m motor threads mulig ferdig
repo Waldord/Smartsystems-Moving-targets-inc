@@ -31,8 +31,9 @@ class IR_sensor:
         self.userdata
         self.mqttc = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2)
         self.mqttc.on_connect = self.on_connect()
-        #self.mqttc.on_message = on_message()
+        self.mqttc.on_message = on_message()
         self.mqttc.connect("broker.hivemq.com", 1883, 60)
+        print("")
         self.mqttc.loop_forever()
         
     def on_connect(self,client, userdata, flags, reason_code, properties):
@@ -612,7 +613,7 @@ class App:
         self.t2 = threading.Thread(target=self.update_score, daemon=True)
         self.t3 = threading.Thread(target=self.move_motorA, daemon=True)
         self.t4 = threading.Thread(target=self.move_motorB, daemon=True)
-        self.t5 = threading.Thread(target=IR_sensor.sensor, daemon=True)
+        self.t5 = threading.Thread(target=IRsensor, daemon=True)
         
         self.t1.start()
         self.t2.start()
@@ -635,7 +636,7 @@ class App:
         t2 = threading.Thread(target=self.update_score, daemon=True)
         self.t3 = threading.Thread(target=self.move_motorA, daemon=True)
         self.t4 = threading.Thread(target=self.move_motorB, daemon=True)
-        self.t5 = threading.Thread(target=IR_sensor.sensor, daemon=True)
+        self.t5 = threading.Thread(target=IRsensor, daemon=True)
         
         t1.start()
         t2.start()
@@ -805,7 +806,8 @@ class ComputerVisionThreads:
 
 if __name__ == "__main__":
     root = Tk()
-
+    IRsensor = IR_sensor()
+    
     app = App(root)
 
     stepperMotorA = TMC_2209(21, 16, 20, serialport="/dev/ttyAMA0", driver_address=0)
