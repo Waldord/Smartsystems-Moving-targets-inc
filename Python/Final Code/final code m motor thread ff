@@ -503,8 +503,8 @@ class App:
             if dx != 0 or dy != 0:  # Only move if dx or dy have changed
                 #MotorControl.Amove(MotorControl.deltaA(dx, dy))
                 #MotorControl.Bmove(MotorControl.deltaB(dx, dy))
-                motorController.Amove(motorController.deltaA(dx, dy), 2)
-                motorController.Bmove(motorController.deltaB(dx, dy), 2)
+                #motorController.Amove(motorController.deltaA(dx, dy), 2)
+                #motorController.Bmove(motorController.deltaB(dx, dy), 2)
                 self.position_x, self.position_y = self.new_position_x, self.new_position_y
                 self.current_position.config(
                     text=f"current position: {self.position_x}, {self.position_y}", 
@@ -528,8 +528,8 @@ class App:
             if dx != 0 or dy != 0:  # Only move if dx or dy have changed
                 #MotorControl.Amove(MotorControl.deltaA(dx, dy))
                 #MotorControl.Bmove(MotorControl.deltaB(dx, dy))
-                motorController.Amove(motorController.deltaA(dx, dy), 2)
-                motorController.Bmove(motorController.deltaB(dx, dy), 2)
+                #motorController.Amove(motorController.deltaA(dx, dy), 2)
+                #motorController.Bmove(motorController.deltaB(dx, dy), 2)
                 self.position_x, self.position_y = self.new_position_x, self.new_position_y
                 self.current_position.config(
                 text=f"current position: {self.position_x}, {self.position_y}", 
@@ -540,7 +540,7 @@ class App:
             time.sleep(self.next_update_interval)
 
     def move_motorA():
-        time.sleep(0.2) 
+        time.sleep(0.5) 
         while self.clock_counter > 0:
             if dx != 0 or dy != 0:  # Only move if dx or dy have changed
             #MotorControl.Amove(MotorControl.deltaA(dx, dy))
@@ -548,7 +548,7 @@ class App:
                 motorController.Amove(motorController.deltaA(dx, dy), 2)
                 time.sleep(self.next_update_interval)
     def move_motorB():
-        time.sleep(0.2)
+        time.sleep(0.5)
         while self.clock_counter > 0:
             if dx != 0 or dy != 0:
                 motorController.Bmove(motorController.deltaB(dx, dy), 2)
