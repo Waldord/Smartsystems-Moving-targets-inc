@@ -69,8 +69,11 @@ class MotorControl:
     def __init__(self):
         self.aFlag = False
         self.bFlag = False
+        self.currentposA = 0
+        self.currentposB = 0
 
     def Amove(self, steps, duration=None):
+        self.currentposA = stepperMotorA.get_current_position()
         if self.aFlag is False:
             self.aFlag = True
             stepperMotorA.set_direction_reg(False)
@@ -86,10 +89,11 @@ class MotorControl:
         if duration is not None:
             print(steps, "| A motor steps")
             stepperMotorA.set_speed_fullstep (steps)
-            stepperMotorA.run_to_position_steps(steps)
+            stepperMotorA.run_to_position_steps(steps + self.currentposA)
             print(stepperMotorA.get_current_position())
         
-    def Bmove(self, steps, duration=None):            
+    def Bmove(self, steps, duration=None): 
+        self.currentposB = stepperMotorB.get_current_position()           
         if self.bFlag is False:
             self.bFlag = True
             stepperMotorB.set_direction_reg(False)
@@ -104,7 +108,7 @@ class MotorControl:
         if duration is not None:
             print(steps, "| B motor steps")
             stepperMotorB.set_speed_fullstep (steps)
-            stepperMotorB.run_to_position_steps(steps)
+            stepperMotorB.run_to_position_steps(steps + self.currentposB)
             print(stepperMotorB.get_current_position())
 
     @staticmethod
