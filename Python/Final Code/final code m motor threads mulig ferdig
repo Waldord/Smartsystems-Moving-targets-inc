@@ -88,7 +88,7 @@ class MotorControl:
 
         if duration is not None:
             print(steps, "| A motor steps  ||  ", "current position A = ", self.currentposA)
-            stepperMotorA.set_speed_fullstep (steps)
+            stepperMotorA.set_speed_fullstep (1000)
             stepperMotorA.run_to_position_steps(steps + self.currentposA)
             print(stepperMotorA.get_current_position())
         
@@ -107,7 +107,7 @@ class MotorControl:
             stepperMotorB.set_max_speed(1500)
         if duration is not None:
             print(steps, "| B motor steps", "current position B = ", self.currentposB)
-            stepperMotorB.set_speed_fullstep (steps)
+            stepperMotorB.set_speed_fullstep (1000)
             stepperMotorB.run_to_position_steps(steps + self.currentposB)
             print(stepperMotorB.get_current_position())
 
@@ -138,67 +138,8 @@ class TMC_StepperMotor:
     def run_to_position_fullsteps(self, speed):
         self.tmc.set_speed_fullstep(speed)
 
-class StepperMotor:
-    def __init__(self, step_pin, dir_pin, en_pin, steps_per_rev=200):
-        # Define pins
-        self.step_pin = OutputDevice(step_pin)
-        self.dir_pin = OutputDevice(dir_pin)
-        self.en_pin = OutputDevice(en_pin)
-        
-        # Motor settings
-        self.steps_per_rev = steps_per_rev
-        self.max_speed = 1000.0
-        self.acceleration = 200.0
-        self.current_speed = 200.0
-        self.target_position = 0
-        self.current_position = 0
-        self.step_delay = 0.001
-        self.running = False
 
-    def set_max_speed(self, speed):
-        self.max_speed = speed
 
-    def set_acceleration(self, acceleration):
-        self.acceleration = acceleration
-
-    def set_speed(self, speed):
-        self.current_speed = min(speed, self.max_speed)
-        self.step_delay = 1 / self.current_speed
-
-    def move_to(self, position):
-        self.target_position = position
-        self.running = True
-        if not hasattr(self, 'thread') or not self.thread.is_alive():
-            self.thread = threading.Thread(target=self.run)
-            self.thread.start()
-
-    def run(self):
-        while self.running:
-            distance_to_go = self.target_position - self.current_position
-            if distance_to_go == 0:
-                self.running = False
-                break
-
-            # Set direction
-            self.dir_pin.value = distance_to_go > 0
-
-            # Accelerate/decelerate logic (simplified for demonstration)
-            if self.acceleration > 0:
-                if abs(self.current_speed) < self.max_speed:
-                    self.current_speed += self.acceleration * 0.01
-                    self.set_speed(self.current_speed)
-            self.step_pin.on()
-            time.sleep(self.step_delay)
-            self.step_pin.off()
-            time.sleep(self.step_delay)
-
-            # Update current position
-            self.current_position += 1 if self.dir_pin.value else -1
-
-    def stop(self):
-        self.running = False
-        if hasattr(self, 'thread'):
-            self.thread.join()
 
 class Sensor:
     # Assigns GPIO pin 27 to infrared detector
@@ -240,8 +181,8 @@ class App:
         self.previous_position_y = 0
 
         # Counter for position array
-        self.next_position_array_x = [500, 1000, 1500, 1500, 1500, 1500, 1500, 1000, 500, 0]
-        self.next_position_array_y = [500, 1000, 1500 ,1000 , 500 , 0, -1000, -1000, -500, 0]
+        self.next_position_array_x = [100, 200, 300, 400, 500, 600, 700, 800, 900, 1000]
+        self.next_position_array_y = [100, 200, 300 ,400 , 500 , 600, 700, 800, 900, 1000]
 
         # Thread event for synchronization
         self.position_event = threading.Event()
@@ -266,6 +207,8 @@ class App:
         
         self.dx = 0
         self.dy = 0
+        
+        self.next_update_interval_offset = 0.1
 
     def create_widgets(self):
 
@@ -551,18 +494,20 @@ class App:
                 print("No position change, skipping motor movement.")
             time.sleep(self.next_update_interval)
 
+
+
     def move_motorA(self):
-        time.sleep(0.2) 
+        time.sleep(0.05) 
         while self.clock_counter > 0:
             motorController.Amove(motorController.deltaA(self.dx, self.dy), 2)
             print("motor A threading works")
-            time.sleep(self.next_update_interval)
+            time.sleep(self.next_update_interval-self.next_update_interval_offset)
     def move_motorB(self):
-        time.sleep(0.2)
+        time.sleep(0.05)
         while self.clock_counter > 0:
             motorController.Bmove(motorController.deltaB(self.dx, self.dy), 2)
             print("motor B threading works")
-            time.sleep(self.next_update_interval)
+            time.sleep(self.next_update_interval-self.next_update_interval_offset)
         
         
 
@@ -840,3 +785,68 @@ if __name__ == "__main__":
     stepperMotorB = TMC_2209(25, 23, 24, serialport="/dev/ttyAMA3", driver_address=1)
     motorController = MotorControl()
     root.mainloop()
+    
+    
+    """
+    class StepperMotor:
+        def __init__(self, step_pin, dir_pin, en_pin, steps_per_rev=200):
+            # Define pins
+            self.step_pin = OutputDevice(step_pin)
+            self.dir_pin = OutputDevice(dir_pin)
+            self.en_pin = OutputDevice(en_pin)
+            
+            # Motor settings
+            self.steps_per_rev = steps_per_rev
+            self.max_speed = 1000.0
+            self.acceleration = 200.0
+            self.current_speed = 200.0
+            self.target_position = 0
+            self.current_position = 0
+            self.step_delay = 0.001
+            self.running = False
+
+        def set_max_speed(self, speed):
+            self.max_speed = speed
+
+        def set_acceleration(self, acceleration):
+            self.acceleration = acceleration
+
+        def set_speed(self, speed):
+            self.current_speed = min(speed, self.max_speed)
+            self.step_delay = 1 / self.current_speed
+
+        def move_to(self, position):
+            self.target_position = position
+            self.running = True
+            if not hasattr(self, 'thread') or not self.thread.is_alive():
+                self.thread = threading.Thread(target=self.run)
+                self.thread.start()
+
+        def run(self):
+            while self.running:
+                distance_to_go = self.target_position - self.current_position
+                if distance_to_go == 0:
+                    self.running = False
+                    break
+
+                # Set direction
+                self.dir_pin.value = distance_to_go > 0
+
+                # Accelerate/decelerate logic (simplified for demonstration)
+                if self.acceleration > 0:
+                    if abs(self.current_speed) < self.max_speed:
+                        self.current_speed += self.acceleration * 0.01
+                        self.set_speed(self.current_speed)
+                self.step_pin.on()
+                time.sleep(self.step_delay)
+                self.step_pin.off()
+                time.sleep(self.step_delay)
+
+                # Update current position
+                self.current_position += 1 if self.dir_pin.value else -1
+
+        def stop(self):
+            self.running = False
+            if hasattr(self, 'thread'):
+                self.thread.join()
+    """
